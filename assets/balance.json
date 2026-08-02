@@ -1,0 +1,589 @@
+{
+  "$schema": "BREACH balance v1 — 수치 단일 원본. 텍스트는 assets/l10n/*.json",
+  "version": 1,
+  "rules": {
+    "subWeight": 0.35,
+    "shortfall": 0.95,
+    "noiseScale": 6,
+    "slackKeep": 0.7,
+    "slackCap": 60,
+    "overflowKeep": 0.35,
+    "handExtra": 4,
+    "layersMin": 5,
+    "layersMax": 7,
+    "deckSize": 12,
+    "traceMax": 100,
+    "privMul": 0.35,
+    "privCap": 6,
+    "resistUp": 1,
+    "resistDown": 0.5,
+    "resistCap": 3,
+    "resistPenalty": {
+      "direct": 0.13,
+      "bypass_t": 0.07,
+      "assault": 0.18
+    },
+    "alertSteps": [
+      30,
+      55,
+      80
+    ],
+    "alertMul": 0.25,
+    "counterFrom": 2,
+    "counterReqUp": 0.3,
+    "counterTrace": 10,
+    "reconCount": 2,
+    "noiseBudget": 12,
+    "gradeTotal": {
+      "basic": 116,
+      "elite": 116,
+      "prime": 116
+    },
+    "gradeCap": {
+      "basic": 84,
+      "elite": 86,
+      "prime": 88
+    },
+    "effectCost": {
+      "cloak": 6,
+      "wipe": 10,
+      "morph": 6,
+      "overload": 20,
+      "bypass": 6,
+      "scout": 12,
+      "frenzy": 4
+    },
+    "gearCap": 2
+  },
+  "layers": {
+    "cipher": {
+      "stat": "dec",
+      "req": [
+        62.3,
+        78.4
+      ],
+      "strength": [
+        1,
+        1.3
+      ],
+      "traceMul": 1
+    },
+    "network": {
+      "stat": "eva",
+      "req": [
+        51.3,
+        67.6
+      ],
+      "strength": [
+        1,
+        1.2
+      ],
+      "traceMul": 1.4
+    },
+    "physical": {
+      "stat": "inf",
+      "req": [
+        73.1,
+        91.9
+      ],
+      "strength": [
+        1.1,
+        1.4
+      ],
+      "traceMul": 0.7
+    },
+    "core": {
+      "stat": null,
+      "req": [
+        84.1,
+        105.5
+      ],
+      "strength": [
+        1.6,
+        2
+      ],
+      "traceMul": 1.2
+    }
+  },
+  "effects": {
+    "cloak": {
+      "silent": true,
+      "scoreMul": 0.75
+    },
+    "wipe": {
+      "traceCut": 8,
+      "scoreMul": 1
+    },
+    "morph": {
+      "morph": true,
+      "scoreMul": 0.9
+    },
+    "overload": {
+      "scoreMul": 1.35,
+      "noiseMul": 2
+    },
+    "bypass": {
+      "bypass": true,
+      "bypassTrace": 26,
+      "scoreMul": 0.5
+    },
+    "scout": {
+      "slackGain": 10,
+      "scoreMul": 0.85
+    },
+    "frenzy": {
+      "alertBonus": 0.3,
+      "scoreMul": 0.72
+    }
+  },
+  "gear": {
+    "amp": {
+      "kind": "access",
+      "v": 22
+    },
+    "scrub": {
+      "kind": "trace",
+      "v": 14
+    },
+    "veil": {
+      "kind": "silent"
+    },
+    "analyzer": {
+      "kind": "cancel"
+    }
+  },
+  "counters": [
+    "seal",
+    "priv_reset",
+    "req_up",
+    "trace_boost"
+  ],
+  "cards": [
+    {
+      "id": "preattack",
+      "grade": "basic",
+      "type": "direct",
+      "shape": [
+        60,
+        25,
+        25
+      ],
+      "noise": 2
+    },
+    {
+      "id": "packet_mask",
+      "grade": "basic",
+      "type": "bypass_t",
+      "shape": [
+        25,
+        60,
+        25
+      ],
+      "noise": 1
+    },
+    {
+      "id": "badge_clone",
+      "grade": "basic",
+      "type": "bypass_t",
+      "shape": [
+        25,
+        25,
+        60
+      ],
+      "noise": 1
+    },
+    {
+      "id": "port_scan",
+      "grade": "basic",
+      "type": "bypass_t",
+      "shape": [
+        30,
+        35,
+        30
+      ],
+      "noise": 0,
+      "priv": 2
+    },
+    {
+      "id": "log_wipe",
+      "grade": "basic",
+      "type": "bypass_t",
+      "shape": [
+        20,
+        30,
+        20
+      ],
+      "noise": 0,
+      "effect": "wipe"
+    },
+    {
+      "id": "brute_force",
+      "grade": "elite",
+      "type": "assault",
+      "shape": [
+        85,
+        20,
+        20
+      ],
+      "noise": 4
+    },
+    {
+      "id": "side_channel",
+      "grade": "elite",
+      "type": "bypass_t",
+      "shape": [
+        45,
+        40,
+        25
+      ],
+      "noise": 2,
+      "effect": "cloak"
+    },
+    {
+      "id": "mitm",
+      "grade": "elite",
+      "type": "direct",
+      "shape": [
+        30,
+        70,
+        30
+      ],
+      "noise": 2,
+      "priv": 1
+    },
+    {
+      "id": "tailgate",
+      "grade": "elite",
+      "type": "assault",
+      "shape": [
+        25,
+        25,
+        80
+      ],
+      "noise": 3
+    },
+    {
+      "id": "privesc",
+      "grade": "prime",
+      "type": "direct",
+      "shape": [
+        40,
+        40,
+        40
+      ],
+      "noise": 2,
+      "priv": -1
+    },
+    {
+      "id": "zero_day",
+      "grade": "prime",
+      "type": "assault",
+      "shape": [
+        55,
+        55,
+        55
+      ],
+      "noise": 3,
+      "effect": "overload"
+    },
+    {
+      "id": "persist_backdoor",
+      "grade": "prime",
+      "type": "bypass_t",
+      "shape": [
+        35,
+        35,
+        35
+      ],
+      "noise": 1,
+      "effect": "bypass"
+    },
+    {
+      "id": "dictionary",
+      "grade": "basic",
+      "type": "direct",
+      "shape": [
+        55,
+        30,
+        25
+      ],
+      "noise": 1
+    },
+    {
+      "id": "lockpick",
+      "grade": "basic",
+      "type": "direct",
+      "shape": [
+        25,
+        30,
+        55
+      ],
+      "noise": 1
+    },
+    {
+      "id": "proxy_chain",
+      "grade": "basic",
+      "type": "bypass_t",
+      "shape": [
+        30,
+        55,
+        30
+      ],
+      "noise": 2
+    },
+    {
+      "id": "fake_id",
+      "grade": "basic",
+      "type": "bypass_t",
+      "shape": [
+        35,
+        40,
+        30
+      ],
+      "noise": 0,
+      "priv": 2
+    },
+    {
+      "id": "wardrive",
+      "grade": "basic",
+      "type": "bypass_t",
+      "shape": [
+        30,
+        50,
+        35
+      ],
+      "noise": 0,
+      "effect": "scout"
+    },
+    {
+      "id": "rainbow",
+      "grade": "elite",
+      "type": "assault",
+      "shape": [
+        75,
+        25,
+        25
+      ],
+      "noise": 3
+    },
+    {
+      "id": "jammer",
+      "grade": "elite",
+      "type": "assault",
+      "shape": [
+        25,
+        75,
+        25
+      ],
+      "noise": 3
+    },
+    {
+      "id": "social",
+      "grade": "elite",
+      "type": "direct",
+      "shape": [
+        30,
+        45,
+        50
+      ],
+      "noise": 2,
+      "priv": 1
+    },
+    {
+      "id": "cover_story",
+      "grade": "elite",
+      "type": "bypass_t",
+      "shape": [
+        35,
+        50,
+        40
+      ],
+      "noise": 1,
+      "effect": "cloak"
+    },
+    {
+      "id": "keylogger",
+      "grade": "elite",
+      "type": "direct",
+      "shape": [
+        75,
+        25,
+        30
+      ],
+      "noise": 2,
+      "effect": "morph"
+    },
+    {
+      "id": "traffic_analysis",
+      "grade": "elite",
+      "type": "bypass_t",
+      "shape": [
+        55,
+        35,
+        35
+      ],
+      "noise": 1,
+      "effect": "scout"
+    },
+    {
+      "id": "chain_exploit",
+      "grade": "elite",
+      "type": "direct",
+      "shape": [
+        60,
+        60,
+        25
+      ],
+      "noise": 2
+    },
+    {
+      "id": "emp_pulse",
+      "grade": "prime",
+      "type": "assault",
+      "shape": [
+        30,
+        30,
+        90
+      ],
+      "noise": 4
+    },
+    {
+      "id": "rootkit",
+      "grade": "prime",
+      "type": "bypass_t",
+      "shape": [
+        45,
+        45,
+        45
+      ],
+      "noise": 2,
+      "effect": "bypass"
+    },
+    {
+      "id": "hw_implant",
+      "grade": "prime",
+      "type": "assault",
+      "shape": [
+        25,
+        40,
+        80
+      ],
+      "noise": 4,
+      "effect": "morph"
+    },
+    {
+      "id": "master_key",
+      "grade": "prime",
+      "type": "direct",
+      "shape": [
+        50,
+        50,
+        50
+      ],
+      "noise": 3,
+      "priv": -1
+    },
+    {
+      "id": "overclock",
+      "grade": "elite",
+      "type": "assault",
+      "shape": [
+        40,
+        40,
+        40
+      ],
+      "noise": 3,
+      "effect": "frenzy"
+    },
+    {
+      "id": "overheat",
+      "grade": "prime",
+      "type": "assault",
+      "shape": [
+        35,
+        35,
+        55
+      ],
+      "noise": 4,
+      "effect": "frenzy"
+    }
+  ],
+  "targets": [
+    {
+      "id": "telecom",
+      "reqScale": 0.956,
+      "traceScale": 1.5,
+      "layerMix": {
+        "cipher": 1,
+        "network": 6,
+        "physical": 1
+      }
+    },
+    {
+      "id": "defense",
+      "reqScale": 0.995,
+      "traceScale": 0.78,
+      "layerMix": {
+        "cipher": 1,
+        "network": 1,
+        "physical": 6
+      }
+    },
+    {
+      "id": "command",
+      "reqScale": 0.917,
+      "layerMix": {
+        "cipher": 6,
+        "network": 1,
+        "physical": 1
+      },
+      "overrides": {
+        "resistUp": 2.5,
+        "resistDown": 0.2
+      }
+    },
+    {
+      "id": "armor",
+      "layerCount": 7,
+      "reqScale": 0.941,
+      "layerMix": {
+        "cipher": 1,
+        "network": 2,
+        "physical": 2
+      },
+      "overrides": {
+        "handExtra": 2
+      }
+    },
+    {
+      "id": "vault",
+      "reqScale": 0.933,
+      "layerMix": {
+        "cipher": 2,
+        "network": 1,
+        "physical": 4
+      },
+      "overrides": {
+        "counterFrom": 1,
+        "alertSteps": [
+          22,
+          45,
+          68
+        ],
+        "counterReqUp": 0.45
+      }
+    },
+    {
+      "id": "exchange",
+      "reqScale": 0.98,
+      "layerMix": {
+        "cipher": 4,
+        "network": 3,
+        "physical": 1
+      },
+      "overrides": {
+        "slackKeep": 0.1
+      }
+    }
+  ]
+}

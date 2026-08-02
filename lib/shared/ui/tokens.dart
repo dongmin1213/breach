@@ -1,0 +1,47 @@
+/// 디자인 토큰 — 색·간격·타이포를 한 곳에.
+/// 화면마다 색을 직접 쓰지 않는다. 테마를 바꿀 때 여기만 고친다.
+library;
+
+import 'package:flutter/material.dart';
+
+class T {
+  // 색 — 어두운 터미널 톤
+  static const bg     = Color(0xFF07090C);
+  static const panel  = Color(0xFF0D1117);
+  static const line   = Color(0xFF1C2530);
+  static const line2  = Color(0xFF2A3644);
+  static const txt    = Color(0xFFC9D4E0);
+  static const dim    = Color(0xFF6B7C8F);
+  static const acc    = Color(0xFF39D3A0);   // 통과 · 좋음
+  static const warn   = Color(0xFFF0B429);   // 부족 · 예고
+  static const bad    = Color(0xFFF2543D);   // 실패 · 발동
+  static const priv   = Color(0xFF7AA2FF);
+
+  // 간격
+  static const s1 = 4.0, s2 = 8.0, s3 = 12.0, s4 = 16.0, s5 = 24.0;
+  static const radius = 6.0;
+  static const maxWidth = 430.0;   // 세로 모바일 기준
+
+  static const mono = 'monospace';
+
+  static ThemeData theme() {
+    const scheme = ColorScheme.dark(
+      surface: bg, primary: acc, secondary: priv, error: bad,
+      onSurface: txt, onPrimary: bg,
+    );
+    return ThemeData(
+      useMaterial3: true, colorScheme: scheme, scaffoldBackgroundColor: bg,
+      textTheme: const TextTheme(
+        displaySmall: TextStyle(color: txt, fontSize: 26, fontWeight: FontWeight.w700, letterSpacing: 2),
+        titleLarge:   TextStyle(color: txt, fontSize: 18, fontWeight: FontWeight.w700),
+        titleMedium:  TextStyle(color: txt, fontSize: 15, fontWeight: FontWeight.w700),
+        bodyMedium:   TextStyle(color: txt, fontSize: 14, height: 1.55),
+        bodySmall:    TextStyle(color: dim, fontSize: 12, height: 1.5),
+        labelSmall:   TextStyle(color: dim, fontSize: 11),
+      ),
+      sliderTheme: const SliderThemeData(
+        activeTrackColor: acc, inactiveTrackColor: line2, thumbColor: acc),
+      dividerColor: line,
+    );
+  }
+}

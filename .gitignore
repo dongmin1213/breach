@@ -1,0 +1,24 @@
+# Flutter / Dart
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+*.iml
+.idea/
+.vscode/
+
+# 플랫폼 빌드 산출물
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+android/.gradle/
+android/local.properties
+android/key.properties
+
+# 시뮬레이터
+sim/node_modules/
+
+# OS
+.DS_Store

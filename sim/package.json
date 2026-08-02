@@ -1,0 +1,10 @@
+{
+  "name": "breach-sim",
+  "private": true,
+  "type": "module",
+  "description": "BREACH 밸런스 검증 하니스 — 룰 엔진의 기준 구현과 400관점 감사",
+  "scripts": {
+    "audit": "node runAll.mjs",
+    "golden": "node golden.mjs"
+  }
+}
