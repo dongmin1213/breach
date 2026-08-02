@@ -21,7 +21,7 @@ breach/
       onboarding · target_select · deck_builder · breach_run · result · settings
   test/
     golden.json             Dart 포팅 정답지 (sim/golden.mjs 가 생성)
-    golden_test · prng_test · prng_web_test · l10n_test · app_test
+    golden_test · prng_test · prng_web_test · determinism_test · l10n_test · app_test
   sim/                    JS 밸런스 검증 하니스
     core/                   JS 엔진 — **검증의 기준 구현**
     audits/                 감사 A~J (221개 검사)
@@ -110,8 +110,13 @@ Dart 네이티브 int 는 64비트, **웹은 double** 이라 그냥 `a * b` 를 
 
 수정했다면 반드시:
 ```
-dart test -p chrome test/prng_web_test.dart
+dart test test/determinism_test.dart      # 엔진에 시계·난수가 없는지 (파일·줄 번호까지 지목)
+dart test -p chrome test/prng_web_test.dart   # 웹 정수 의미론
 ```
+
+결정론 경계는 테스트로 강제된다:
+- `lib/shared/engine/**` — 시계·난수 **금지**
+- 그 밖 — 새 런의 시드 생성만 예외 (`test/determinism_test.dart` 의 `_seedWhitelist` 에 사유와 함께 등록)
 
 ---
 
