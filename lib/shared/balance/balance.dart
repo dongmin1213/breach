@@ -2,7 +2,7 @@
 ///
 /// ⚠️ 수치를 Dart 상수로 옮겨 적으면 안 된다. 시뮬레이터(../breach/sim)가 검증한 값과
 ///    앱이 쓰는 값이 갈라지고, 그 순간 감사 221개는 출시될 게임을 설명하지 않게 된다.
-///    balance.json 하나만 고치고 `tool/sync_assets.sh` 로 가져온다.
+///    assets/balance.json 하나만 고치면 시뮬레이터와 앱이 같은 값을 본다 (복사 없음).
 ///    텍스트는 여기 없다 — assets/l10n/*.json 에 있다.
 library;
 

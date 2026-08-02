@@ -45,7 +45,7 @@ JS 를 버리면 감사 하니스를 통째로 잃는다. Dart 만으로 감사�
 
 ## 왜 에셋이 한 벌인가
 
-이전 구조는 `breach/assets`(원본)와 `breach_app/assets`(복사본)로 나뉘어 있었고
+(이력) 초기에는 `breach/assets`(원본)와 `breach_app/assets`(복사본)로 나뉘어 있었고
 동기화 스크립트가 필요했다. Flutter 를 저장소 루트로 올려서 **복사를 없앴다.**
 
 - Flutter 는 `assets/` 를 네이티브로 읽는다

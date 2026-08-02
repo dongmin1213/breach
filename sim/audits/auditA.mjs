@@ -177,7 +177,7 @@ const src = p => readFileSync(new URL(p, import.meta.url), 'utf8');
   A.check('경계 단계 = TRACE 문턱 초과 개수', bad === 0, `${bad}/${n}`);
 }
 {
-  // 인과: 능동 대응은 반드시 그 전에 WARN 로그가 있어야 한다 (PRD 예고 규칙)
+  // 인과: 능동 대응은 반드시 그 전에 WARN 로그가 있어야 한다 (docs/02-rules.md §6 예고 규칙)
   let unwarned = 0, total = 0;
   for (let i = 0; i < 500; i++) {
     const s = run(kit('강습'), 8900+i, 'assign');

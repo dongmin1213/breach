@@ -13,7 +13,7 @@
 
 // ⚠️ 수치는 여기 없다. assets/balance.json 이 단일 원본이고 core/balance.mjs 가 읽어 온다.
 //    코드에 박아두면 시뮬레이터가 검증한 값과 앱이 쓰는 값이 갈라진다.
-//    (설계 근거와 실패 기록은 PRD.md / DESIGN.md 에 남겼다.)
+//    (설계 근거와 실패 기록은 docs/02-rules.md · docs/06-findings.md 에 있다.)
 export { CONFIG } from './balance.mjs';
 import { CONFIG } from './balance.mjs';
 

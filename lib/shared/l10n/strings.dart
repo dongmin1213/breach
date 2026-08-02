@@ -7,7 +7,7 @@
 ///    (test/l10n_test.dart — 두 언어의 키 집합이 같은지, 코드가 쓰는 키가 다 있는지).
 ///
 /// 파일 두 벌로 나뉜 이유는 **소유권**이다:
-///    assets/l10n/{ko,en}.json      콘텐츠 — ../breach 가 원본, sync_assets.sh 로 가져옴
+///    assets/l10n/{ko,en}.json      콘텐츠 — 카드·표적·효과 이름
 ///    assets/l10n/ui_{ko,en}.json   UI 문구 — 이 앱이 원본
 library;
 
