@@ -263,6 +263,54 @@ const src = p => readFileSync(new URL(p, import.meta.url), 'utf8');
     ['balance.json 에 표시 문자열 없음',
       !/[가-힣]/.test(JSON.stringify(bal.cards) + JSON.stringify(bal.targets))],
   ];
+
+  // ── 문서 동기화: 문서가 주장하는 구조 수치가 실제와 맞는가.
+  //    ⚠️ "맞는 숫자가 어딘가 있으면 통과"로 짜면 **틀린 숫자를 못 잡는다**
+  //       (실제로 3곳 중 2곳을 틀리게 바꿔도 통과했다).
+  //       패턴에 걸린 **모든** 숫자가 실측과 같아야 통과하도록 뒤집는다.
+  //    여기 넣을 것은 구조 수치(카드 수·표적 수·덱 크기)뿐이다. 성공률 같은 측정값은
+  //    튜닝할 때마다 바뀌므로 문서에 시점을 붙여 두고 검사하지 않는다.
+  const DOCS = ['01-overview','02-rules','03-content','04-balance',
+                '05-validation','06-findings','07-architecture','08-roadmap']
+    .map(n => [`docs/${n}.md`, src(`../../docs/${n}.md`)]);
+  DOCS.push(['README.md', src('../../README.md')]);
+
+  // ⚠️ 패턴이 문구와 안 맞으면 **0건 매칭으로 공허하게 통과**한다 (실제로 그랬다).
+  //    그래서 "모든 매칭이 실측과 같을 것" 에 더해 "최소 1건은 매칭될 것" 을 함께 요구한다.
+  //    문서를 재작성해 패턴이 죽으면 통과가 아니라 실패로 알려준다.
+  const claims = [
+    ['카드 수',   bal.cards.length,                /카드[^\n]{0,24}?(\d+)\s*종/g],
+    ['표적 수',   bal.targets.length,              /표적[^\n]{0,24}?(\d+)\s*종/g],
+    ['덱 크기',   R.deckSize,                      /덱\s*(\d+)\s*장/g],
+    ['효과 수',   Object.keys(bal.effects).length, /효과[^\n]{0,24}?(\d+)\s*종/g],
+  ];
+  // 이력·목표·실패 기록의 옛 수치는 대상이 아니다
+  const skipLine = l =>
+    /이력|초판|전작|폐기|목표|이전 구조|조건부|실패|레이싱|만들어도|v[12]\.0/.test(l)
+    || /\d+\s*(?:종)?\s*(?:→|~)\s*\d+\s*종/.test(l);   // "30 → 60종", "30~60종" = 목표 표기
+
+  const wrong = [], vacuous = [];
+  for (const [label, truth, re] of claims) {
+    let hits = 0;
+    for (const [file, text] of DOCS) {
+      for (const line of text.split('\n')) {
+        if (skipLine(line)) continue;
+        re.lastIndex = 0;
+        let m;
+        while ((m = re.exec(line)) !== null) {
+          hits++;
+          if (Number(m[1]) !== truth) wrong.push(`${file}: "${m[0].trim()}" (실제 ${truth})`);
+        }
+      }
+    }
+    if (hits === 0) vacuous.push(label);
+  }
+  H.check('문서의 구조 수치 주장이 실제로 검사됨 (패턴이 죽지 않음)',
+    vacuous.length === 0,
+    vacuous.length ? `문서에서 못 찾음 → 패턴이 낡았거나 서술이 사라짐: ${vacuous.join(', ')}`
+                   : `${claims.length}개 항목 전부 매칭됨`);
+  H.check('문서의 구조 수치가 실제와 일치', wrong.length === 0,
+    wrong.length ? wrong.slice(0, 4).join(' / ') : '전부 일치');
   H.check('문서와 코드의 핵심 상수가 일치', checks.every(c=>c[1]),
     checks.filter(c=>!c[1]).map(c=>c[0]).join(',') || '일치');
 }
