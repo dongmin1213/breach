@@ -10,9 +10,8 @@ const setReq = m => { for (const k of Object.keys(baseReq))
   CONFIG.LAYER[k].req = baseReq[k].req.map(x => x*m); };
 
 function randKit(seed) {
-  const r = rng(seed), p = [...TOOLKIT];
-  for (let i=p.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[p[i],p[j]]=[p[j],p[i]];}
-  return p.slice(0,8).map(t=>({...t}));
+  // 덱 크기는 balance.json 이 원본 (예전에는 8 로 박혀 있었다)
+  return L.randKit(seed);
 }
 
 function probe(n = 3000) {

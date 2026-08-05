@@ -32,6 +32,10 @@ class _BreachRunPageState extends State<BreachRunPage> {
   /// 고른 카드. 두 번 눌러야 내진다 — 되돌릴 수 없는 수라 오조작을 막는다.
   Tool? _picked;
 
+  /// 소음 상한은 카드 풀에서 구한다 — balance.json 이 원본이고 코드에 안 박는다 (§1.2)
+  int get _maxNoise =>
+      app.pool.map((t) => t.noise).fold(1, (a, b) => a > b ? a : b);
+
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: run,
@@ -270,7 +274,7 @@ class _BreachRunPageState extends State<BreachRunPage> {
                     style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 3),
                   Row(children: [
-                    NoiseDots(t.noise),
+                    NoiseDots(t.noise, max: _maxNoise),
                     const Spacer(),
                     if (t.priv > 0) Text('+${t.priv}',
                       style: T.num_(10.5, color: T.priv)),

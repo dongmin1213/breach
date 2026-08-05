@@ -188,9 +188,12 @@ class CardShell extends StatelessWidget {
 }
 
 /// 소음(비용)을 점으로. 이 게임의 비용 축이라 유형·효과와 같은 태그로 묻히면 안 된다.
+///
+/// ⚠️ `max` 는 **호출부가 카드 풀에서 구해 넘긴다.** 여기 4 를 박아두면
+///    `assets/balance.json` 에 소음 5짜리 카드가 생기는 순간 조용히 잘린다 (§1.2).
 class NoiseDots extends StatelessWidget {
   final int noise, max;
-  const NoiseDots(this.noise, {super.key, this.max = 4});
+  const NoiseDots(this.noise, {super.key, required this.max});
   @override
   Widget build(BuildContext c) {
     final col = noise >= 3 ? T.bad : noise >= 2 ? T.warn : T.acc;

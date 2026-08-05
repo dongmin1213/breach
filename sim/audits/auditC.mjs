@@ -91,7 +91,9 @@ const BASE = std(N, 'assign');
   const wOf = deck => { let ok=0;
     for (let i=0;i<1500;i++) if (run(cloneKit(deck), SEED.TEST+i, 'assign').status==='success') ok++;
     return ok/1500; };
-  const SAMPLES = 600, BAND = 24;
+  //    ⚠️ 띠당 표본은 **40 이상**이어야 한다 — docs/05 §2 「무작위 표본 한 쌍으로 분포
+  //       대표」 금지 항목의 기준이다. 24 로 뒀다가 교차검증에서 규약 미달로 잡혔다.
+  const SAMPLES = 900, BAND = 40;
   const pool = Array.from({length: SAMPLES}, (_, s) => {
     const d = randKit(770000 + s);
     return { d, m: mean(d.map(x => x.noise)) };

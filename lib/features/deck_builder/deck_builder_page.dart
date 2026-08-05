@@ -30,6 +30,10 @@ class _DeckBuilderPageState extends State<DeckBuilderPage> {
 
   Tool _tool(String id) => app.pool.firstWhere((t) => t.id == id);
 
+  /// 소음 상한은 카드 풀에서 구한다 — balance.json 이 원본이고 코드에 안 박는다 (§1.2)
+  int get _maxNoise =>
+      app.pool.map((t) => t.noise).fold(1, (a, b) => a > b ? a : b);
+
   /// 표적이 가장 많이 요구하는 스탯 — 그 막대를 강조해서 "맞춰 가라"를 보여준다
   String? get _wantedStat {
     final t = app.balance.targets.where((x) => x.id == app.save.targetId).firstOrNull;
@@ -170,7 +174,7 @@ class _DeckBuilderPageState extends State<DeckBuilderPage> {
           if (t.priv > 0) Tag('${s['run.priv']}+${t.priv}', color: T.priv),
           if (t.priv < 0) Tag(s['run.priv'], color: T.priv),
           const SizedBox(width: 3),
-          NoiseDots(t.noise),
+          NoiseDots(t.noise, max: _maxNoise),
         ]),
         const SizedBox(height: 5),
         Row(children: [

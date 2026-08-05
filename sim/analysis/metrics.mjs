@@ -120,6 +120,12 @@ const fails = byMove+byDeck+pureLuck;
 //    → 탐욕 구성으로 짓는다. 30종에서 문서 기준값(buildcheck 13.6%p)을 재현하므로
 //      결과에 맞춰 고른 방식이 아니다 — 탐욕 13.1% vs 무작위40 15.7%.
 //      표적 차별화의 기준 도구는 원래 buildcheck.mjs 다 (docs/03 §7).
+// ⚠️ 동률 처리에 주의. `> bv` 로 첫 후보를 남기면 **balance.json 삽입 순서**가 챔피언을
+//    가른다 — auditC #102 에서 고친 것과 같은 클래스 결함이다 (실제로 여기 남아 있었다).
+//    동점이면 id 해시로 깨서 순서와 무관하게 결정적이 되게 한다.
+const _tieKey = (id) => { let h = 0x811c9dc5;
+  for (const c of id) { h ^= c.charCodeAt(0); h = (h * 0x01000193) & 0xffffffff; }
+  return h; };
 const champ = {};
 for (const k of TARGET_KEYS) {
   const opts = applyTarget(k);
@@ -129,7 +135,8 @@ for (const k of TARGET_KEYS) {
     for (const t of TOOLKIT) {
       if (d.includes(t)) continue;
       let ok=0; for (let i=0;i<120;i++) if (run(cloneKit([...d,t]), SEED.TRAIN+i,'assign',opts).status==='success') ok++;
-      if (ok/120 > bv) { bv=ok/120; best=t; }
+      const v = ok/120;
+      if (v > bv || (v === bv && best && _tieKey(t.id) < _tieKey(best.id))) { bv=v; best=t; }
     }
     d.push(best);
   }

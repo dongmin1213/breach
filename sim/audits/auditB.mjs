@@ -13,11 +13,10 @@ const { Audit, rng, kit, run, batch, versusRaw, score, CONFIG, SEED,
 const B = new Audit('B 통계 타당성', 47);
 
 // ── 무작위 툴킷 생성기 (현실적 조건 표본용)
-function randKit(seed) {
-  const r = rng(seed), pool = [...TOOLKIT];
-  for (let i = pool.length-1; i>0; i--) { const j = Math.floor(r()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
-  return pool.slice(0,8).map(t => ({...t}));
-}
+// ⚠️ 덱 크기는 **balance.json 의 deckSize** 다. 예전에는 8 로 박혀 있어서 게임이 쓰는
+//    12장이 아니라 8장 덱으로 통계 타당성을 재고 있었다 (§1.2 위반이자 측정 오류).
+//    lib.mjs 의 randKit 이 이미 DECK_SIZE 를 쓰므로 그걸 그대로 쓴다.
+const randKit = L.randKit;
 
 // ── 측정 기반 무결성 — 이 검사가 깨지면 아래 전부가 무의미하다 ──
 {

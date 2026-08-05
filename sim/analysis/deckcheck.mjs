@@ -90,9 +90,8 @@ console.log('\n══ ④ 조합이 결과를 좌우하는가 (덱빌딩의 전�
 {
   const rates = [];
   for (let k=0;k<200;k++) {
-    const r = rng(700000+k), p=[...TOOLKIT];
-    for (let i=p.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[p[i],p[j]]=[p[j],p[i]];}
-    const kk = p.slice(0,8).map(t=>({...t}));
+    // 덱 크기는 balance.json 이 원본 (예전에는 8 로 박혀 있었다)
+    const kk = L.randKit(700000+k);
     let ok=0; for (let t=0;t<300;t++) if (run(cloneKit(kk), SEED.TEST+t,'assign').status==='success') ok++;
     rates.push(ok/300);
   }
