@@ -91,10 +91,20 @@ class _DeckBuilderPageState extends State<DeckBuilderPage> {
             : (noise / deck.length).toStringAsFixed(2)}),
           style: Theme.of(context).textTheme.labelSmall)),
         const SizedBox(height: T.s3),
-        Expanded(child: ListView(children: [
-          for (final t in app.pool) _cardTile(t),
-          const SizedBox(height: T.s2),
-        ])),
+        // 풀이 40종을 넘어가면서 "내 12장이 어디 있나"를 찾는 게 일이 됐다.
+        // 덱과 나머지를 갈라 놓으면 스크롤 없이 현재 구성을 볼 수 있다.
+        Expanded(child: Builder(builder: (_) {
+          final mine = app.pool.where((t) => deck.contains(t.id)).toList();
+          final rest = app.pool.where((t) => !deck.contains(t.id)).toList();
+          return ListView(children: [
+            _sectionHeader(context, s['deck.myDeck'], mine.length),
+            for (final t in mine) _cardTile(t, want),
+            const SizedBox(height: T.s3),
+            _sectionHeader(context, s['deck.pool'], rest.length),
+            for (final t in rest) _cardTile(t, want),
+            const SizedBox(height: T.s2),
+          ]);
+        })),
         SafeArea(top: false, child: Padding(
           padding: const EdgeInsets.symmetric(vertical: T.s2),
           child: SizedBox(width: double.infinity, child: FilledButton(
@@ -118,42 +128,57 @@ class _DeckBuilderPageState extends State<DeckBuilderPage> {
         style: const TextStyle(fontFamily: T.mono, fontSize: 11.5, color: T.dim))),
     ]));
 
-  Widget _cardTile(Tool t) {
+  Widget _sectionHeader(BuildContext c, String label, int n) => Padding(
+    padding: const EdgeInsets.only(bottom: T.s2, top: 2),
+    child: Row(children: [
+      Text(label, style: Theme.of(c).textTheme.labelSmall
+        ?.copyWith(color: T.txt, fontWeight: FontWeight.w700)),
+      const SizedBox(width: 6),
+      Text('$n', style: const TextStyle(color: T.dim, fontSize: 11)),
+      const SizedBox(width: T.s2),
+      const Expanded(child: Divider(color: T.line, height: 1)),
+    ]));
+
+  /// 표적이 요구하는 스탯을 **앞으로 빼서 강조**한다.
+  /// "덱을 맞춰 가세요"라고 안내하면서 어느 수치를 봐야 하는지 안 알려주면 소용이 없다.
+  Widget _cardTile(Tool t, String? want) {
     final s = app.s;
     final inDeck = deck.contains(t.id);
     final canAdd = inDeck || deck.length < size;
-    return Opacity(opacity: canAdd ? 1 : 0.35, child: Padding(
-      padding: const EdgeInsets.only(bottom: 7),
-      child: InkWell(
-        onTap: canAdd ? () => _toggle(t.id) : null,
-        borderRadius: BorderRadius.circular(T.radius - 1),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 10),
-          decoration: BoxDecoration(
-            color: T.panel,
-            border: Border(
-              left: BorderSide(color: inDeck ? T.acc : T.line, width: 3),
-              top: BorderSide(color: T.line), right: BorderSide(color: T.line),
-              bottom: BorderSide(color: T.line)),
-            borderRadius: BorderRadius.circular(T.radius - 1)),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text(s.card(t.id), style: const TextStyle(
-                fontSize: 14.5, fontWeight: FontWeight.w700)),
-              Text(inDeck ? s['deck.inDeck'] : s['deck.add'],
-                style: TextStyle(fontSize: 11.5, color: inDeck ? T.acc : T.dim)),
-            ]),
-            const SizedBox(height: 4),
-            Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-              Tag(s.type(t.type)),
-              Tag('${s['run.traceAdd']} ${t.noise}'),
-              if (t.effect != null) Tag(s.effect(t.effect!), color: T.acc),
-              if (t.priv > 0) Tag('${s['run.priv']}+${t.priv}'),
-              if (t.priv < 0) Tag(s['run.priv']),
-              Text('${s.stat('dec')} ${t.dec} · ${s.stat('eva')} ${t.eva}'
-                   ' · ${s.stat('inf')} ${t.inf}',
-                style: const TextStyle(fontSize: 11.5, color: T.dim)),
-            ]),
-          ])))));
+    final stats = ['dec', 'eva', 'inf'];
+    final ordered = want == null ? stats : [want, ...stats.where((x) => x != want)];
+
+    return CardShell(
+      accent: inDeck ? T.acc : T.line2,
+      selected: inDeck,
+      disabled: !canAdd,
+      onTap: canAdd ? () => _toggle(t.id) : null,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Expanded(child: Text(s.card(t.id), style: TextStyle(
+            fontSize: 14.5, fontWeight: FontWeight.w700,
+            color: canAdd ? T.txt : T.dim))),
+          if (t.effect != null) Tag(s.effect(t.effect!), color: T.acc),
+          if (t.priv > 0) Tag('${s['run.priv']}+${t.priv}', color: T.priv),
+          if (t.priv < 0) Tag(s['run.priv'], color: T.priv),
+          Text(s.type(t.type), style: const TextStyle(fontSize: 11, color: T.dim)),
+          const SizedBox(width: 7),
+          NoiseDots(t.noise),
+        ]),
+        const SizedBox(height: 5),
+        Row(children: [
+          for (final k in ordered) Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Text.rich(TextSpan(children: [
+              TextSpan(text: '${s.stat(k)} ', style: TextStyle(
+                fontSize: 11, color: k == want ? T.acc : T.dim)),
+              TextSpan(text: '${t.stat(k)}', style: TextStyle(
+                fontFamily: T.mono, fontSize: 12.5,
+                fontWeight: k == want ? FontWeight.w700 : FontWeight.w400,
+                color: k == want ? T.acc : (canAdd ? T.txt : T.dim))),
+            ])),
+          ),
+        ]),
+      ]));
   }
 }

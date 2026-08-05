@@ -1,7 +1,6 @@
 {
   "app.title": "BREACH",
   "app.tagline": "보안 시스템 침투 · 카드 게임",
-
   "onboard.role": "당신은 <b>해커</b>입니다. 여러 겹으로 보호된 시스템을 <b>계층 하나씩</b> 뚫고 코어까지 들어가는 것이 목표입니다.",
   "onboard.rulesTitle": "규칙은 두 줄입니다",
   "onboard.rule1": "각 계층에는 <b>필요 침투도</b>가 있습니다. 도구를 하나 내서 그 수치를 넘기세요.",
@@ -14,7 +13,6 @@
   "onboard.warn": "<b>예고</b> — 시스템이 반격할 때는 <b>항상 한 계층 먼저 알려줍니다.</b>",
   "onboard.hand": "도구는 <b>한 번 쓰면 사라집니다.</b>",
   "onboard.start": "침투 시작",
-
   "run.traceGauge": "탐지도 — 100이 되면 잡힌다",
   "run.noAlert": "경계 없음",
   "run.alertStage": "경계 {n}단계",
@@ -38,7 +36,6 @@
   "run.forcePush": "강행 돌파",
   "run.warnNext": "다음 계층 예고 — {c}",
   "run.activeNow": "지금 이 계층에 {c} 발동",
-
   "counterHint.seal": "다음 계층에 들어가면 손에 있는 가장 좋은 도구 1개가 봉인됩니다. 이번 턴에 써버리세요.",
   "counterHint.priv_reset": "다음 계층에 들어가면 모아둔 권한이 0이 됩니다. 지금 소비하세요.",
   "counterHint.req_up": "다음 계층의 필요 침투도가 올라갑니다. 여유를 쌓아두세요.",
@@ -51,7 +48,6 @@
   "layerDesc.network": "뚫기는 쉽지만 트래픽이 남는다 — 소음이 크게 잡힌다.",
   "layerDesc.physical": "뚫기는 어렵지만 조용하다.",
   "layerDesc.core": "여기만 넘으면 침투 성공.",
-
   "deck.targetTitle": "표적 선택",
   "deck.targetSub": "표적마다 요구하는 능력이 다릅니다. 덱을 맞춰 가세요.",
   "deck.myDeck": "내 덱",
@@ -59,7 +55,6 @@
   "deck.inDeck": "덱에 있음",
   "deck.add": "추가",
   "deck.start": "침투 시작",
-
   "result.success": "침투 성공",
   "result.failed": "발각됨",
   "result.successMsg": "코어에 도달했습니다.",
@@ -72,7 +67,6 @@
   "result.again": "같은 표적 · 새 판",
   "result.retry": "완전히 같은 판 다시",
   "result.toDeck": "표적 · 덱 바꾸기",
-
   "settings.title": "설정",
   "settings.language": "언어",
   "settings.bgm": "BGM 음량",
@@ -85,9 +79,10 @@
   "settings.resetDo": "지우기",
   "settings.resetDone": "초기화했습니다",
   "settings.rules": "규칙 다시 보기",
-
   "common.cancel": "취소",
   "common.close": "닫기",
   "common.on": "켜기",
-  "common.off": "끄기"
+  "common.off": "끄기",
+  "deck.pool": "보유 도구",
+  "deck.reqStat": "이 표적이 요구"
 }

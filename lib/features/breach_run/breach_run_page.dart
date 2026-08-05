@@ -136,58 +136,68 @@ class BreachRunPage extends StatelessWidget {
     return s.f('gearHint.$g', {'n': v});
   }
 
+  /// 한 장을 내는 결정은 두 가지로 갈린다 — **넘기는가**, **얼마를 내는가**.
+  /// 그래서 판정과 탐지 증가분을 제일 크게 놓고, 스탯·수치는 근거로 아래에 깐다.
+  /// (예전에는 카드 이름·판정·스탯·수치가 전부 같은 무게라 눈이 갈 곳이 없었다.)
   Widget _cardTile(BuildContext c, Tool t) {
     final p = run.preview(t);
     final side = p.fatal ? T.bad : (p.clears ? T.acc : T.warn);
     final verdict = p.fatal ? s['run.caught']
         : p.clears ? s['run.pass']
         : s.f('run.short', {'n': p.shortAfter.toStringAsFixed(1)});
-    return Padding(padding: const EdgeInsets.only(bottom: 7), child: InkWell(
-      onTap: () => run.play(t),
-      borderRadius: BorderRadius.circular(T.radius - 1),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 10),
-        decoration: BoxDecoration(
-          color: T.panel,
-          border: Border(left: BorderSide(color: side, width: 3),
-            top: const BorderSide(color: T.line), right: const BorderSide(color: T.line),
-            bottom: const BorderSide(color: T.line)),
-          borderRadius: BorderRadius.circular(T.radius - 1)),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Expanded(child: Text(s.card(t.id),
-              style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w700))),
-            Text(verdict, style: TextStyle(
-              color: side, fontSize: 12.5, fontWeight: FontWeight.w700)),
-          ]),
-          const SizedBox(height: 3),
-          Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
-            Tag(s.type(t.type)),
-            if (t.effect != null) Tag(s.effect(t.effect!), color: T.acc),
-            if (t.priv > 0) Tag('${s['run.priv']}+${t.priv}'),
-            if (t.priv < 0) Tag(s['run.priv']),
-            Text(_statLine(t), style: const TextStyle(fontSize: 11.5, color: T.dim)),
-          ]),
-          const SizedBox(height: 5),
-          Wrap(spacing: 10, children: [
-            Text('${s['run.accessOf']} ${p.acc.toStringAsFixed(1)} / '
-                 '${p.req.toStringAsFixed(1)}',
-              style: const TextStyle(fontFamily: T.mono, fontSize: 12, color: T.txt)),
-            Text('${s['run.traceAdd']} +${p.dTrace.toStringAsFixed(1)}',
-              style: TextStyle(fontFamily: T.mono, fontSize: 12,
-                color: p.dTrace > 18 ? T.bad : (p.dTrace > 8 ? T.warn : T.dim))),
-            if (p.gain > 0.5) Text('${s['run.slackAdd']} +${p.gain.toStringAsFixed(1)}',
-              style: const TextStyle(fontFamily: T.mono, fontSize: 12, color: T.acc)),
-            if (p.absorbed > 0.5) Text('${s['run.slackAdd']} −${p.absorbed.toStringAsFixed(1)}',
-              style: const TextStyle(fontFamily: T.mono, fontSize: 12, color: T.acc)),
-          ]),
-        ]))));
-  }
+    final traceCol = p.fatal ? T.bad : (p.dTrace > 18 ? T.bad : (p.dTrace > 8 ? T.warn : T.dim));
+    final want = run.layer.stat;
+    final stats = ['dec', 'eva', 'inf'];
+    final ordered = want == null ? stats : [want, ...stats.where((x) => x != want)];
 
-  String _statLine(Tool t) {
-    final L = run.layer;
-    String one(String k, int v) =>
-        '${s.stat(k)} $v${L.stat == k ? '◂' : ''}';
-    return '${one('dec', t.dec)} · ${one('eva', t.eva)} · ${one('inf', t.inf)}';
+    return CardShell(
+      accent: side,
+      onTap: () => run.play(t),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        // ① 판정 + 비용 — 결정에 필요한 두 값
+        Row(crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic, children: [
+          Expanded(child: Text(verdict, style: TextStyle(
+            color: side, fontSize: 17, fontWeight: FontWeight.w700))),
+          Text('${s['run.traceAdd']} ', style: const TextStyle(fontSize: 11, color: T.dim)),
+          Text('+${p.dTrace.toStringAsFixed(1)}', style: TextStyle(
+            fontFamily: T.mono, fontSize: 16, fontWeight: FontWeight.w700, color: traceCol)),
+        ]),
+        const SizedBox(height: 4),
+        // ② 무엇을 내는가
+        Row(children: [
+          Expanded(child: Text(s.card(t.id), style: const TextStyle(
+            fontSize: 13.5, fontWeight: FontWeight.w700, color: T.txt))),
+          if (t.effect != null) Tag(s.effect(t.effect!), color: T.acc),
+          if (t.priv > 0) Tag('${s['run.priv']}+${t.priv}', color: T.priv),
+          if (t.priv < 0) Tag(s['run.priv'], color: T.priv),
+          Text(s.type(t.type), style: const TextStyle(fontSize: 11, color: T.dim)),
+          const SizedBox(width: 7),
+          NoiseDots(t.noise),
+        ]),
+        const SizedBox(height: 5),
+        // ③ 근거 수치
+        Wrap(spacing: 12, runSpacing: 2, crossAxisAlignment: WrapCrossAlignment.center, children: [
+          Text.rich(TextSpan(children: [
+            TextSpan(text: '${s['run.accessOf']} ', style: const TextStyle(fontSize: 11, color: T.dim)),
+            TextSpan(text: p.acc.toStringAsFixed(1), style: TextStyle(
+              fontFamily: T.mono, fontSize: 12.5, fontWeight: FontWeight.w700, color: side)),
+            TextSpan(text: ' / ${p.req.toStringAsFixed(1)}',
+              style: const TextStyle(fontFamily: T.mono, fontSize: 12.5, color: T.dim)),
+          ])),
+          for (final k in ordered) Text.rich(TextSpan(children: [
+            TextSpan(text: '${s.stat(k)} ', style: TextStyle(
+              fontSize: 11, color: k == want ? T.acc : T.dim)),
+            TextSpan(text: '${t.stat(k)}', style: TextStyle(
+              fontFamily: T.mono, fontSize: 12,
+              fontWeight: k == want ? FontWeight.w700 : FontWeight.w400,
+              color: k == want ? T.acc : T.dim)),
+          ])),
+          if (p.gain > 0.5) Text('${s['run.slackAdd']} +${p.gain.toStringAsFixed(1)}',
+            style: const TextStyle(fontFamily: T.mono, fontSize: 12, color: T.acc)),
+          if (p.absorbed > 0.5) Text('${s['run.slackAdd']} −${p.absorbed.toStringAsFixed(1)}',
+            style: const TextStyle(fontFamily: T.mono, fontSize: 12, color: T.acc)),
+        ]),
+      ]));
   }
 }

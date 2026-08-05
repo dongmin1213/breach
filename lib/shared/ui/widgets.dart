@@ -88,6 +88,72 @@ class StatChip extends StatelessWidget {
     ])));
 }
 
+/// 카드 타일 껍데기 — 왼쪽 강조 띠 + 균일 테두리.
+///
+/// ⚠️ **띠를 테두리로 그리지 마라.** `Border(left: BorderSide(color: 강조색))` 처럼
+///    한 면만 색이 다른 테두리에 `borderRadius` 를 같이 주면 Flutter 가
+///    `A borderRadius can only be given on borders with uniform colors` 로
+///    **페인트를 통째로 건너뛴다.** 위젯 트리에는 있는데 화면엔 빈 상자만 남는다.
+///    실제로 덱 빌더의 「덱에 있음」 카드와 **플레이 화면의 카드 전부**가
+///    그렇게 안 그려지고 있었다 (게임이 플레이 불가능한 상태였다).
+///    띠는 테두리가 아니라 자식 위젯으로 그린다.
+class CardShell extends StatelessWidget {
+  final Color accent;
+  final Widget child;
+  final VoidCallback? onTap;
+
+  /// 선택됨 — 배경에 강조색을 옅게 깔아 스캔이 쉬워진다
+  final bool selected;
+
+  /// 지금 고를 수 없음 — 투명도로 죽이지 않고 테두리·글자만 낮춘다
+  /// (0.35 투명도는 "비활성"이 아니라 "고장난 것"처럼 읽힌다)
+  final bool disabled;
+
+  const CardShell({super.key, required this.accent, required this.child,
+    this.onTap, this.selected = false, this.disabled = false});
+
+  @override
+  Widget build(BuildContext c) => Padding(
+    padding: const EdgeInsets.only(bottom: 7),
+    child: Material(
+      color: selected ? Color.alphaBlend(accent.withValues(alpha: 0.06), T.panel) : T.panel,
+      borderRadius: BorderRadius.circular(T.radius),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: selected ? accent.withValues(alpha: 0.55) : T.line),
+            borderRadius: BorderRadius.circular(T.radius)),
+          child: IntrinsicHeight(child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(width: 3, color: disabled ? T.line2 : accent),
+              Expanded(child: Padding(
+                padding: const EdgeInsets.fromLTRB(11, 9, 11, 9), child: child)),
+            ])))),
+    ));
+}
+
+/// 소음(비용)을 점으로. 이 게임의 비용 축이라 유형·효과와 같은 태그로 묻히면 안 된다.
+class NoiseDots extends StatelessWidget {
+  final int noise, max;
+  const NoiseDots(this.noise, {super.key, this.max = 4});
+  @override
+  Widget build(BuildContext c) {
+    final col = noise >= 3 ? T.bad : noise >= 2 ? T.warn : T.acc;
+    return Row(mainAxisSize: MainAxisSize.min, children: [
+      for (var i = 0; i < max; i++) Padding(
+        padding: const EdgeInsets.only(right: 2.5),
+        child: Container(width: 6, height: 6, decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: i < noise ? col : Colors.transparent,
+          border: Border.all(color: i < noise ? col : T.line2, width: 1))),
+      ),
+    ]);
+  }
+}
+
 class Tag extends StatelessWidget {
   final String text;
   final Color? color;

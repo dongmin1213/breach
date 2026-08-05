@@ -82,5 +82,7 @@
   "common.cancel": "Cancel",
   "common.close": "Close",
   "common.on": "On",
-  "common.off": "Off"
+  "common.off": "Off",
+  "deck.pool": "Available Tools",
+  "deck.reqStat": "Target demands"
 }
