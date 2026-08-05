@@ -84,5 +84,7 @@
   "common.on": "On",
   "common.off": "Off",
   "deck.pool": "Available Tools",
-  "deck.reqStat": "Target demands"
+  "deck.reqStat": "Target demands",
+  "run.playTool": "Play this tool",
+  "run.tapToPick": "Tap a card to choose"
 }

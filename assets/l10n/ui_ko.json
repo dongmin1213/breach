@@ -84,5 +84,7 @@
   "common.on": "켜기",
   "common.off": "끄기",
   "deck.pool": "보유 도구",
-  "deck.reqStat": "이 표적이 요구"
+  "deck.reqStat": "이 표적이 요구",
+  "run.playTool": "이 도구를 낸다",
+  "run.tapToPick": "카드를 눌러 고르세요"
 }

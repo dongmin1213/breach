@@ -64,6 +64,9 @@ flutter:
   assets:
     - assets/balance.json
     - assets/l10n/
+    # 카드 아트 — 파일만 떨구면 앱이 집어 간다. 계약은 assets/cards/README.md.
+    # 없는 카드는 card_art.dart 가 절차 생성 패턴으로 대신 그리므로 일부만 채워도 된다.
+    - assets/cards/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
