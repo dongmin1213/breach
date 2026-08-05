@@ -17,12 +17,35 @@ class T {
   static const bad    = Color(0xFFF2543D);   // 실패 · 발동
   static const priv   = Color(0xFF7AA2FF);
 
+  /// 리스트가 앉는 바닥 — 카드를 띄워 보이게 하려면 배경이 한 단 더 어두워야 한다
+  static const well   = Color(0xFF05070A);
+
+  /// 유형 색 — 텍스트를 읽지 않고 **색만으로** 구분되게 한다
+  static const tDirect  = Color(0xFFE0705A);   // 정공
+  static const tBypass  = Color(0xFF5AA9E0);   // 우회
+  static const tAssault = Color(0xFFE0A93F);   // 강습
+  static Color typeColor(String type) => switch (type) {
+    'direct'   => tDirect,
+    'bypass_t' => tBypass,
+    _          => tAssault,
+  };
+
   // 간격
   static const s1 = 4.0, s2 = 8.0, s3 = 12.0, s4 = 16.0, s5 = 24.0;
   static const radius = 6.0;
   static const maxWidth = 430.0;   // 세로 모바일 기준
 
   static const mono = 'monospace';
+
+  /// 수치는 전부 mono 로. 해커 게임에서 숫자가 본문 폰트로 나오면 데이터로 안 읽힌다.
+  /// 자리수가 흔들리지 않아 세로로 비교하기도 쉽다.
+  static TextStyle num_(double size, {Color? color, FontWeight w = FontWeight.w700}) =>
+      TextStyle(fontFamily: mono, fontSize: size, fontWeight: w, color: color ?? txt,
+        letterSpacing: -0.3);
+
+  /// 섹션 라벨 — 대문자 + 자간으로 "시스템이 말하는 톤"
+  static const label = TextStyle(fontSize: 10.5, color: dim,
+    fontWeight: FontWeight.w700, letterSpacing: 1.4);
 
   static ThemeData theme() {
     const scheme = ColorScheme.dark(

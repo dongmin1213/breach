@@ -16,38 +16,88 @@ class Frame extends StatelessWidget {
     child: Padding(padding: padding, child: child)));
 }
 
-/// 탐지도 게이지 — 경계 문턱을 눈금으로 표시한다.
-/// "지금 얼마나 위험한가"를 한눈에 보여주는 게 이 화면의 핵심이다.
+/// 탐지도 게이지 — **이 화면에서 가장 큰 물건이어야 한다.**
+///
+/// 플레이어가 지는 이유는 하나뿐이다: 이게 100 이 되는 것. 그런데 예전에는 20px 짜리
+/// 얇은 진행바라 "진행도" 처럼 읽혔다. 죽는 이유가 화면에서 제일 안 중요해 보이면 안 된다.
+///
+/// - 문턱(경계 단계)마다 눈금과 라벨을 세워 **다음 단계까지 얼마 남았는지**를 보여준다
+/// - 현재 구간의 색이 게이지 전체와 수치에 함께 걸려 상태가 한 덩어리로 읽힌다
+/// - 위험 구간에서는 바깥으로 빛이 번져 화면 전체의 톤이 바뀐다
 class TraceGauge extends StatelessWidget {
   final double trace, max;
   final List<int> steps;
   const TraceGauge({super.key, required this.trace, required this.max, required this.steps});
 
+  static Color colorFor(double p) =>
+      p >= 0.8 ? T.bad : p >= 0.55 ? T.warn : T.acc;
+
   @override
   Widget build(BuildContext c) {
     final p = (trace / max).clamp(0.0, 1.0);
-    final grad = p >= 0.8
-        ? const [Color(0xFF8A1F12), T.bad]
-        : p >= 0.55 ? const [Color(0xFF7A5A08), T.warn] : const [Color(0xFF12463A), T.acc];
-    return LayoutBuilder(builder: (c, box) => SizedBox(height: 20, child: Stack(children: [
-      Container(decoration: BoxDecoration(
-        color: const Color(0xFF0A0E13),
-        border: Border.all(color: T.line2), borderRadius: BorderRadius.circular(3))),
-      AnimatedContainer(
-        duration: const Duration(milliseconds: 350), curve: Curves.easeOutCubic,
-        width: box.maxWidth * p,
-        decoration: BoxDecoration(gradient: LinearGradient(colors: grad),
+    final col = colorFor(p);
+    return LayoutBuilder(builder: (c, box) => Column(children: [
+      SizedBox(height: 34, child: Stack(children: [
+        // 바닥 — 배경보다 더 깊게 파서 게이지가 얹힌 것처럼 보이게
+        Container(decoration: BoxDecoration(
+          color: T.well,
+          border: Border.all(color: T.line2),
           borderRadius: BorderRadius.circular(3))),
-      for (final s in steps)
-        Positioned(left: box.maxWidth * (s / max), top: 0, bottom: 0,
-          child: Container(width: 1, color: const Color(0xFF3B4A5A))),
-      Positioned(right: 6, top: 2, child: Text(
-        '${trace.toStringAsFixed(1)} / ${max.toStringAsFixed(0)}',
-        style: const TextStyle(fontFamily: T.mono, fontSize: 12,
-          fontWeight: FontWeight.w700, color: T.txt,
-          shadows: [Shadow(color: Colors.black, blurRadius: 6)]))),
-    ])));
+        // 채워지는 부분
+        ClipRRect(
+          borderRadius: BorderRadius.circular(3),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 420), curve: Curves.easeOutCubic,
+            width: box.maxWidth * p,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [col.withValues(alpha: 0.28), col.withValues(alpha: 0.85)]),
+              boxShadow: p >= 0.55
+                ? [BoxShadow(color: col.withValues(alpha: 0.45), blurRadius: 14, spreadRadius: -2)]
+                : null),
+          )),
+        // 경계 문턱 눈금
+        for (final s in steps)
+          Positioned(left: box.maxWidth * (s / max), top: 0, bottom: 0,
+            child: Container(width: 1,
+              color: trace >= s ? Colors.black.withValues(alpha: 0.55) : T.line2)),
+        // 수치 — 게이지 안에 크게
+        Positioned.fill(child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 9),
+          child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Text(trace.toStringAsFixed(1), style: T.num_(19, color: T.txt).copyWith(
+              shadows: const [Shadow(color: Colors.black, blurRadius: 8)])),
+            Text('/ ${max.toStringAsFixed(0)}', style: T.num_(12, color: T.dim,
+              w: FontWeight.w400)),
+          ]))),
+      ])),
+      // 문턱 라벨 — 다음 경계까지 얼마 남았는지가 보여야 대비가 된다
+      const SizedBox(height: 3),
+      SizedBox(height: 11, child: Stack(clipBehavior: Clip.none, children: [
+        for (final s in steps)
+          Positioned(left: box.maxWidth * (s / max) - 8,
+            child: Text('$s', style: TextStyle(fontFamily: T.mono, fontSize: 9.5,
+              color: trace >= s ? col : T.line2, fontWeight: FontWeight.w700))),
+      ])),
+    ]));
   }
+}
+
+/// 판정 배지 — 「통과 / N 부족 / 여기서 잡힌다」.
+/// 색 글씨로만 두면 카드 이름과 같은 층위로 읽힌다. 채운 칩이라야 즉시 갈린다.
+class VerdictBadge extends StatelessWidget {
+  final String text;
+  final Color color;
+  const VerdictBadge(this.text, this.color, {super.key});
+  @override
+  Widget build(BuildContext c) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+    decoration: BoxDecoration(
+      color: color.withValues(alpha: 0.16),
+      border: Border.all(color: color.withValues(alpha: 0.55)),
+      borderRadius: BorderRadius.circular(3)),
+    child: Text(text, style: TextStyle(
+      color: color, fontSize: 14.5, fontWeight: FontWeight.w700, letterSpacing: -0.2)));
 }
 
 /// 예고 · 발동 배너. 무슨 일이 일어나는지에 더해 **뭘 해야 하는지**까지 적는다.
@@ -114,21 +164,23 @@ class CardShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext c) => Padding(
-    padding: const EdgeInsets.only(bottom: 7),
+    padding: const EdgeInsets.only(bottom: 6),
     child: Material(
-      color: selected ? Color.alphaBlend(accent.withValues(alpha: 0.06), T.panel) : T.panel,
-      borderRadius: BorderRadius.circular(T.radius),
+      color: selected ? Color.alphaBlend(accent.withValues(alpha: 0.07), T.panel) : T.panel,
+      // 모서리를 날카롭게 — 둥글면 패널·배너와 형태가 같아져 "카드"로 안 읽힌다
+      borderRadius: BorderRadius.circular(3),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Container(
           decoration: BoxDecoration(
-            border: Border.all(color: selected ? accent.withValues(alpha: 0.55) : T.line),
-            borderRadius: BorderRadius.circular(T.radius)),
+            border: Border.all(color: selected ? accent.withValues(alpha: 0.5) : T.line),
+            borderRadius: BorderRadius.circular(3)),
           child: IntrinsicHeight(child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(width: 3, color: disabled ? T.line2 : accent),
+              // 척추 — 유형/상태를 **읽지 않고 색으로** 구분하는 장치
+              Container(width: 4, color: disabled ? T.line2 : accent),
               Expanded(child: Padding(
                 padding: const EdgeInsets.fromLTRB(11, 9, 11, 9), child: child)),
             ])))),

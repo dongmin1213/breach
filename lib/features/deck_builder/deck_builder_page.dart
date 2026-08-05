@@ -1,9 +1,10 @@
 /// 덱 구성 슬라이스.
 ///
-/// 덱 12장 < 손패(계층+4 ≈ 10) < 풀 30종. 이 세 겹이 덱빌딩을 만든다.
-///   · 좋은 카드를 넣으면 +4.0%p 이득, 잡카드는 −18.2%p 손해 (희석 비용이 작동)
-///   · 표적별 전용 덱의 홈 어드밴티지 13.6%p
-/// 그래서 이 화면은 **표적이 요구하는 스탯 대비 내 덱의 비중**을 항상 보여준다.
+/// 덱 12장 < 손패(계층+4 ≈ 10) < 풀. 이 세 겹이 덱빌딩을 만든다.
+///   · 좋은 카드를 넣으면 이득, 잡카드는 손해 (희석 비용이 작동 — docs/04)
+///   · 표적별 전용 덱의 홈 어드밴티지가 플레이 실력 폭보다 두 배 이상 크다
+/// 그래서 이 화면은 **표적이 요구하는 스탯 대비 내 덱의 비중**을 항상 보여주고,
+/// 카드마다 그 스탯을 맨 앞으로 빼서 강조한다.
 library;
 
 import 'package:flutter/material.dart';
@@ -155,14 +156,20 @@ class _DeckBuilderPageState extends State<DeckBuilderPage> {
       onTap: canAdd ? () => _toggle(t.id) : null,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Expanded(child: Text(s.card(t.id), style: TextStyle(
-            fontSize: 14.5, fontWeight: FontWeight.w700,
-            color: canAdd ? T.txt : T.dim))),
+          Container(width: 6, height: 6, margin: const EdgeInsets.only(right: 6),
+            decoration: BoxDecoration(shape: BoxShape.circle,
+              color: canAdd ? T.typeColor(t.type) : T.line2)),
+          Text(s.card(t.id), style: TextStyle(
+            fontSize: 14, fontWeight: FontWeight.w700,
+            color: canAdd ? T.txt : T.dim)),
+          const SizedBox(width: 6),
+          Text(s.type(t.type), style: TextStyle(fontSize: 10.5,
+            color: canAdd ? T.typeColor(t.type) : T.dim)),
+          const Spacer(),
           if (t.effect != null) Tag(s.effect(t.effect!), color: T.acc),
           if (t.priv > 0) Tag('${s['run.priv']}+${t.priv}', color: T.priv),
           if (t.priv < 0) Tag(s['run.priv'], color: T.priv),
-          Text(s.type(t.type), style: const TextStyle(fontSize: 11, color: T.dim)),
-          const SizedBox(width: 7),
+          const SizedBox(width: 3),
           NoiseDots(t.noise),
         ]),
         const SizedBox(height: 5),
@@ -172,10 +179,9 @@ class _DeckBuilderPageState extends State<DeckBuilderPage> {
             child: Text.rich(TextSpan(children: [
               TextSpan(text: '${s.stat(k)} ', style: TextStyle(
                 fontSize: 11, color: k == want ? T.acc : T.dim)),
-              TextSpan(text: '${t.stat(k)}', style: TextStyle(
-                fontFamily: T.mono, fontSize: 12.5,
-                fontWeight: k == want ? FontWeight.w700 : FontWeight.w400,
-                color: k == want ? T.acc : (canAdd ? T.txt : T.dim))),
+              TextSpan(text: '${t.stat(k)}', style: T.num_(12.5,
+                color: k == want ? T.acc : (canAdd ? T.txt : T.dim),
+                w: k == want ? FontWeight.w700 : FontWeight.w400)),
             ])),
           ),
         ]),

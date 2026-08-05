@@ -77,47 +77,89 @@ class BreachRunPage extends StatelessWidget {
       );
     });
 
-  Widget _gauge(BuildContext c, dynamic r) => Column(children: [
-    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-      Text(s['run.traceGauge'], style: const TextStyle(
-        color: T.bad, fontSize: 12, fontWeight: FontWeight.w700)),
-      Text(run.state.alert == 0 ? s['run.noAlert']
-        : s.f('run.alertStage', {'n': run.state.alert}),
-        style: Theme.of(c).textTheme.labelSmall),
-    ]),
-    const SizedBox(height: 3),
-    TraceGauge(trace: run.state.trace,
-      max: r.traceMax.toDouble(), steps: List<int>.from(r.alertSteps)),
-    const SizedBox(height: 6),
-    Wrap(spacing: 6, runSpacing: 4, children: [
-      StatChip(s['run.slack'], run.state.slack.toStringAsFixed(1)),
-      StatChip(s['run.toolsLeft'], '${run.state.hand.length}'),
-      if (run.state.priv > 0) StatChip(s['run.priv'], '${run.state.priv}', color: T.priv),
-    ]),
-  ]);
+  Widget _gauge(BuildContext c, dynamic r) {
+    final alert = run.state.alert;
+    final col = TraceGauge.colorFor(run.state.trace / r.traceMax);
+    return Column(children: [
+      Row(children: [
+        Text(s['run.traceGauge'].toUpperCase(), style: T.label.copyWith(color: col)),
+        const Spacer(),
+        // 경계 단계는 "지금 얼마나 비싸졌는가"라 눈에 띄어야 한다
+        if (alert > 0) Container(
+          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+          decoration: BoxDecoration(
+            color: T.warn.withValues(alpha: 0.15),
+            border: Border.all(color: T.warn.withValues(alpha: 0.5)),
+            borderRadius: BorderRadius.circular(3)),
+          child: Text(s.f('run.alertStage', {'n': alert}),
+            style: const TextStyle(color: T.warn, fontSize: 11, fontWeight: FontWeight.w700)))
+        else Text(s['run.noAlert'], style: Theme.of(c).textTheme.labelSmall),
+      ]),
+      const SizedBox(height: 5),
+      TraceGauge(trace: run.state.trace,
+        max: r.traceMax.toDouble(), steps: List<int>.from(r.alertSteps)),
+      const SizedBox(height: 7),
+      Row(children: [
+        _meter(s['run.slack'], run.state.slack.toStringAsFixed(1), T.acc),
+        const SizedBox(width: 6),
+        _meter(s['run.toolsLeft'], '${run.state.hand.length}', T.txt),
+        if (run.state.priv > 0) ...[
+          const SizedBox(width: 6),
+          _meter(s['run.priv'], '${run.state.priv}', T.priv),
+        ],
+      ]),
+    ]);
+  }
 
+  /// 상태 수치 — 라벨은 작게 위, 값은 mono 로 크게. 칩보다 계기판처럼 읽힌다.
+  Widget _meter(String label, String value, Color col) => Expanded(child: Container(
+    padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+    decoration: BoxDecoration(color: T.well, border: Border.all(color: T.line),
+      borderRadius: BorderRadius.circular(3)),
+    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text(label.toUpperCase(), style: T.label.copyWith(fontSize: 9)),
+      const SizedBox(height: 1),
+      Text(value, style: T.num_(14, color: col)),
+    ])));
+
+  /// 이번 계층 — 요구치가 이 화면의 기준선이므로 제일 크게 두고,
+  /// 나머지는 그 아래 한 줄로 붙인다. (예전에는 네 줄이 같은 무게로 흩어져 있었다.)
   Widget _layerPanel(BuildContext c) {
     final L = run.layer;
     final key = L.type.toLowerCase();
-    return Panel(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(s.layer(key), style: Theme.of(c).textTheme.labelSmall),
-      const SizedBox(height: 1),
-      Text(L.stat != null
-          ? s.f('run.statNeeded', {'stat': s.stat(L.stat!)})
-          : s['run.finalGate'],
-        style: Theme.of(c).textTheme.titleLarge),
-      const SizedBox(height: 6),
-      Text.rich(TextSpan(children: [
-        TextSpan(text: '${s['run.needPrefix']} ',
-          style: Theme.of(c).textTheme.bodyMedium),
-        TextSpan(text: run.requirement.toStringAsFixed(1),
-          style: const TextStyle(color: T.acc, fontSize: 24, fontWeight: FontWeight.w700)),
-        TextSpan(text: ' ${s['run.needSuffix']}',
-          style: Theme.of(c).textTheme.bodyMedium),
-      ])),
-      const SizedBox(height: 5),
-      Text(s['layerDesc.$key'], style: Theme.of(c).textTheme.bodySmall),
-    ]));
+    final want = L.stat;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(13, 11, 13, 12),
+      decoration: BoxDecoration(
+        color: T.panel,
+        border: Border.all(color: T.line2),
+        borderRadius: BorderRadius.circular(3),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.5),
+          blurRadius: 12, offset: const Offset(0, 3))]),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Text(s.layer(key).toUpperCase(), style: T.label),
+          const Spacer(),
+          if (want != null) Text(s.stat(want), style: const TextStyle(
+            color: T.acc, fontSize: 11.5, fontWeight: FontWeight.w700)),
+        ]),
+        const SizedBox(height: 6),
+        // 요구치 — 이 판의 기준선
+        Row(crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic, children: [
+          Text(run.requirement.toStringAsFixed(1), style: T.num_(34, color: T.acc)),
+          const SizedBox(width: 7),
+          Expanded(child: Text(
+            want != null
+              ? s.f('run.statNeeded', {'stat': s.stat(want)})
+              : s['run.finalGate'],
+            style: Theme.of(c).textTheme.bodySmall?.copyWith(height: 1.35))),
+        ]),
+        const SizedBox(height: 7),
+        Container(height: 1, color: T.line),
+        const SizedBox(height: 7),
+        Text(s['layerDesc.$key'], style: Theme.of(c).textTheme.bodySmall),
+      ]));
   }
 
   Widget _gear(BuildContext c) => Column(
@@ -163,50 +205,50 @@ class BreachRunPage extends StatelessWidget {
       onTap: () => run.play(t),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         // ① 판정 + 비용 — 결정에 필요한 두 값
-        Row(crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic, children: [
-          Expanded(child: Text(verdict, style: TextStyle(
-            color: side, fontSize: 17, fontWeight: FontWeight.w700))),
-          Text('${s['run.traceAdd']} ', style: const TextStyle(fontSize: 11, color: T.dim)),
-          // 소거 카드는 증가분이 0 이하가 될 수 있다. `+` 를 무조건 붙이면 `+-0.0` 이 된다.
-          Text(_signed(p.dTrace), style: TextStyle(
-            fontFamily: T.mono, fontSize: 16, fontWeight: FontWeight.w700,
-            color: p.dTrace <= 0 ? T.acc : traceCol)),
-        ]),
-        const SizedBox(height: 4),
-        // ② 무엇을 내는가
         Row(children: [
-          Expanded(child: Text(s.card(t.id), style: const TextStyle(
-            fontSize: 13.5, fontWeight: FontWeight.w700, color: T.txt))),
+          VerdictBadge(verdict, side),
+          const Spacer(),
+          Text('${s['run.traceAdd']} ', style: const TextStyle(fontSize: 10.5, color: T.dim)),
+          // 소거 카드는 증가분이 0 이하가 될 수 있다. `+` 를 무조건 붙이면 `+-0.0` 이 된다.
+          Text(_signed(p.dTrace),
+            style: T.num_(17, color: p.dTrace <= 0 ? T.acc : traceCol)),
+        ]),
+        const SizedBox(height: 7),
+        // ② 무엇을 내는가 — 유형은 척추 색과 같은 색 점으로 묶어 둔다
+        Row(children: [
+          Container(width: 6, height: 6, margin: const EdgeInsets.only(right: 6),
+            decoration: BoxDecoration(shape: BoxShape.circle, color: T.typeColor(t.type))),
+          Text(s.card(t.id), style: const TextStyle(
+            fontSize: 13.5, fontWeight: FontWeight.w700, color: T.txt)),
+          const SizedBox(width: 6),
+          Text(s.type(t.type), style: TextStyle(fontSize: 10.5, color: T.typeColor(t.type))),
+          const Spacer(),
           if (t.effect != null) Tag(s.effect(t.effect!), color: T.acc),
           if (t.priv > 0) Tag('${s['run.priv']}+${t.priv}', color: T.priv),
           if (t.priv < 0) Tag(s['run.priv'], color: T.priv),
-          Text(s.type(t.type), style: const TextStyle(fontSize: 11, color: T.dim)),
-          const SizedBox(width: 7),
+          const SizedBox(width: 3),
           NoiseDots(t.noise),
         ]),
-        const SizedBox(height: 5),
-        // ③ 근거 수치
-        Wrap(spacing: 12, runSpacing: 2, crossAxisAlignment: WrapCrossAlignment.center, children: [
+        const SizedBox(height: 6),
+        // ③ 근거 수치 — 전부 mono 로 세로 비교가 되게
+        Wrap(spacing: 12, runSpacing: 3, crossAxisAlignment: WrapCrossAlignment.center, children: [
           Text.rich(TextSpan(children: [
-            TextSpan(text: '${s['run.accessOf']} ', style: const TextStyle(fontSize: 11, color: T.dim)),
-            TextSpan(text: p.acc.toStringAsFixed(1), style: TextStyle(
-              fontFamily: T.mono, fontSize: 12.5, fontWeight: FontWeight.w700, color: side)),
+            TextSpan(text: '${s['run.accessOf']} ', style: const TextStyle(fontSize: 10.5, color: T.dim)),
+            TextSpan(text: p.acc.toStringAsFixed(1), style: T.num_(13, color: side)),
             TextSpan(text: ' / ${p.req.toStringAsFixed(1)}',
-              style: const TextStyle(fontFamily: T.mono, fontSize: 12.5, color: T.dim)),
+              style: T.num_(12, color: T.dim, w: FontWeight.w400)),
           ])),
           for (final k in ordered) Text.rich(TextSpan(children: [
             TextSpan(text: '${s.stat(k)} ', style: TextStyle(
-              fontSize: 11, color: k == want ? T.acc : T.dim)),
-            TextSpan(text: '${t.stat(k)}', style: TextStyle(
-              fontFamily: T.mono, fontSize: 12,
-              fontWeight: k == want ? FontWeight.w700 : FontWeight.w400,
-              color: k == want ? T.acc : T.dim)),
+              fontSize: 10.5, color: k == want ? T.acc : T.dim)),
+            TextSpan(text: '${t.stat(k)}', style: T.num_(12,
+              color: k == want ? T.acc : T.dim,
+              w: k == want ? FontWeight.w700 : FontWeight.w400)),
           ])),
           if (p.gain > 0.5) Text('${s['run.slackAdd']} +${p.gain.toStringAsFixed(1)}',
-            style: const TextStyle(fontFamily: T.mono, fontSize: 12, color: T.acc)),
+            style: T.num_(12, color: T.acc, w: FontWeight.w400)),
           if (p.absorbed > 0.5) Text('${s['run.slackAdd']} −${p.absorbed.toStringAsFixed(1)}',
-            style: const TextStyle(fontFamily: T.mono, fontSize: 12, color: T.acc)),
+            style: T.num_(12, color: T.acc, w: FontWeight.w400)),
         ]),
       ]));
   }
