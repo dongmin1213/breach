@@ -506,6 +506,123 @@
       ],
       "noise": 4,
       "effect": "frenzy"
+    },
+    {
+      "id": "burn_notice",
+      "grade": "elite",
+      "type": "direct",
+      "shape": [
+        45,
+        35,
+        40
+      ],
+      "noise": 2,
+      "effect": "wipe"
+    },
+    {
+      "id": "stack_smash",
+      "grade": "elite",
+      "type": "direct",
+      "shape": [
+        70,
+        30,
+        30
+      ],
+      "noise": 2,
+      "effect": "overload"
+    },
+    {
+      "id": "ghost_route",
+      "grade": "prime",
+      "type": "assault",
+      "shape": [
+        45,
+        45,
+        50
+      ],
+      "noise": 3,
+      "effect": "cloak"
+    },
+    {
+      "id": "hardline_tap",
+      "grade": "basic",
+      "type": "bypass_t",
+      "shape": [
+        25,
+        30,
+        60
+      ],
+      "noise": 0,
+      "priv": 2
+    },
+    {
+      "id": "cred_harvest",
+      "grade": "elite",
+      "type": "direct",
+      "shape": [
+        70,
+        30,
+        30
+      ],
+      "noise": 2,
+      "priv": 1
+    },
+    {
+      "id": "kernel_exploit",
+      "grade": "prime",
+      "type": "assault",
+      "shape": [
+        30,
+        80,
+        35
+      ],
+      "noise": 3,
+      "priv": -1
+    },
+    {
+      "id": "token_forge",
+      "grade": "elite",
+      "type": "bypass_t",
+      "shape": [
+        45,
+        45,
+        45
+      ],
+      "noise": 1,
+      "priv": -1
+    },
+    {
+      "id": "cold_boot",
+      "grade": "elite",
+      "type": "direct",
+      "shape": [
+        30,
+        30,
+        75
+      ],
+      "noise": 2
+    },
+    {
+      "id": "crypto_break",
+      "grade": "prime",
+      "type": "assault",
+      "shape": [
+        80,
+        30,
+        35
+      ],
+      "noise": 3
+    },
+    {
+      "id": "beacon_spoof",
+      "grade": "elite",
+      "type": "assault",
+      "shape": [
+        30,
+        75,
+        30
+      ],
+      "noise": 2
     }
   ],
   "targets": [

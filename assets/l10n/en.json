@@ -75,5 +75,15 @@
   "target.vault.name": "Underground Vault",
   "type.assault.name": "Assault",
   "type.bypass_t.name": "Bypass",
-  "type.direct.name": "Direct"
+  "type.direct.name": "Direct",
+  "card.burn_notice.name": "Burn Notice",
+  "card.stack_smash.name": "Stack Smash",
+  "card.ghost_route.name": "Ghost Route",
+  "card.hardline_tap.name": "Hardline Tap",
+  "card.cred_harvest.name": "Credential Harvest",
+  "card.kernel_exploit.name": "Kernel Exploit",
+  "card.token_forge.name": "Token Forgery",
+  "card.cold_boot.name": "Cold Boot Attack",
+  "card.crypto_break.name": "Cryptanalysis",
+  "card.beacon_spoof.name": "Beacon Spoofing"
 }

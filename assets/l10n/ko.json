@@ -75,5 +75,15 @@
   "target.vault.name": "지하 금고 제어실",
   "type.assault.name": "강습",
   "type.bypass_t.name": "우회",
-  "type.direct.name": "정공"
+  "type.direct.name": "정공",
+  "card.burn_notice.name": "소각지시",
+  "card.stack_smash.name": "스택스매시",
+  "card.ghost_route.name": "고스트루트",
+  "card.hardline_tap.name": "하드라인탭",
+  "card.cred_harvest.name": "자격증명수집",
+  "card.kernel_exploit.name": "커널익스플로잇",
+  "card.token_forge.name": "토큰위조",
+  "card.cold_boot.name": "콜드부트",
+  "card.crypto_break.name": "암호해독",
+  "card.beacon_spoof.name": "비컨스푸핑"
 }

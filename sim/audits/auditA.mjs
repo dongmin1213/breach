@@ -1,6 +1,6 @@
 // ══════════════════════════════════════════════════════════════
 //  A 그룹 (1–40) — 코드 정합성 · 결정론 · 보존 · 경계값
-//  여기가 깨지면 나머지 360개 관점의 수치가 전부 무의미하다.
+//  여기가 깨지면 나머지 전 그룹의 수치가 전부 무의미하다.
 // ══════════════════════════════════════════════════════════════
 import * as L from '../lib.mjs';
 import { readFileSync } from 'node:fs';
@@ -99,7 +99,7 @@ const src = p => readFileSync(new URL(p, import.meta.url), 'utf8');
   A.check('은폐 툴의 소음이 정확히 0', ok && tested > 0, `표본 ${tested}`);
 }
 {
-  const s0 = newRun([{...byName('로그와이프')}], R(7), { layerCount: 5 });
+  const s0 = newRun([{...byName('log_wipe')}], R(7), { layerCount: 5 });
   const wipe = s0.hand[0];
   const L0 = s0.layers[0];
   const s1 = resolveLayer(s0, wipe, R(8));
@@ -108,8 +108,8 @@ const src = p => readFileSync(new URL(p, import.meta.url), 'utf8');
   A.check('소거 효과가 dTrace 에 정확히 반영', Math.abs(lg.dTrace - expect) < 1e-9, f(lg.dTrace,3));
 }
 {
-  const plain = {...byName('사전공격')};
-  const over  = {...byName('제로데이')};
+  const plain = {...byName('preattack')};
+  const over  = {...byName('zero_day')};
   const s0 = newRun([plain, over], R(11), { layerCount: 5, handSize: 2 });
   const Lx = s0.layers[0];
   const nA = L.noiseOf(plain, Lx, s0) / plain.noise;
@@ -321,7 +321,7 @@ const src = p => readFileSync(new URL(p, import.meta.url), 'utf8');
 }
 {
   // 같은 이름 툴 2장 → 한 번 사용 시 하나만 소비되어야 한다 (객체 동일성 함정)
-  const two = [{...byName('사전공격')}, {...byName('사전공격')}, {...byName('패킷위장')}];
+  const two = [{...byName('preattack')}, {...byName('preattack')}, {...byName('packet_mask')}];
   const s0 = newRun(two, R(15001), { layerCount: 5, handSize: 3 });
   const target = s0.hand.find(c=>c.name==='사전공격');
   const s1 = resolveLayer(s0, target, R(2));
@@ -331,7 +331,7 @@ const src = p => readFileSync(new URL(p, import.meta.url), 'utf8');
 }
 {
   // 빈 손패 강제 패스
-  const s0 = newRun([{...byName('사전공격')}], R(16000), { layerCount: 5, handSize: 1 });
+  const s0 = newRun([{...byName('preattack')}], R(16000), { layerCount: 5, handSize: 1 });
   let s = s0, r = R(2), err = null;
   try { while (s.status==='running') s = resolveLayer(s, s.hand[0] ?? null, r); }
   catch (e) { err = e.message; }

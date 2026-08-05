@@ -78,18 +78,32 @@ const BASE = std(N, 'assign');
   //   ⚠️ 소음이 스탯 예산을 사므로 **균질한 저소음 덱 = 저스탯 덱**이다. 그건 전략이 아니라
   //      약한 덱이다 (측정: 21.1%). 현실적인 덱은 섞여 있으므로, 평균 소음이 다른
   //      **혼합 덱**들로 비교해야 "조용한 빌드가 성립하는가"라는 질문에 답이 된다.
-  const byNoise = tgt => {
-    const pool = [...TOOLKIT].sort((a,b)=>Math.abs(a.noise-tgt)-Math.abs(b.noise-tgt));
-    return pool.slice(0,12).map(t=>({...t}));
-  };
+  //   ⚠️ 구현이 이 주석을 두 번 배신했다. 둘 다 **풀이 커지자** 드러났다.
+  //      ① "목표 소음에 가장 가까운 12장"을 결정적으로 자르던 방식 — 같은 소음 카드가
+  //         12장을 넘는 순간 **균질 덱**이 되어, 위가 쓰지 말라는 바로 그것을 만든다.
+  //         게다가 동점을 balance.json 삽입 순서로 깨므로 **게임 의미가 없는 순서**에 좌우된다.
+  //         실측: 풀 순서만 섞어도 목표 2.0 승률이 9.9% ~ 27.1% 로 17%p 흔들렸다.
+  //      ② 절대 소음값(1.0 · 1.5 …)을 목표로 잡던 것 — 무작위 12장 덱의 평균 소음은
+  //         풀 평균 근처에 몰리므로 어떤 목표는 덱이 두세 개밖에 안 잡힌다.
+  //         "표본 한 쌍으로 분포 대표"라 §1.3 위반이다 (실측: 목표 1.0 에서 덱 2개).
+  //      → 덱 평균 소음의 **분위수**로 띠를 잡는다. 무작위 혼합 덱이고, 풀이 어떻게
+  //        바뀌어도 띠마다 표본 수가 유지되며, 삽입 순서에 무관하다.
   const wOf = deck => { let ok=0;
-    for (let i=0;i<4000;i++) if (run(cloneKit(deck), SEED.TEST+i, 'assign').status==='success') ok++;
-    return ok/4000; };
-  const builds = [1.0, 1.5, 2.0, 2.5].map(t => {
-    const d = byNoise(t);
-    return [f(mean(d.map(x=>x.noise)),2), wOf(d)];
+    for (let i=0;i<1500;i++) if (run(cloneKit(deck), SEED.TEST+i, 'assign').status==='success') ok++;
+    return ok/1500; };
+  const SAMPLES = 600, BAND = 24;
+  const pool = Array.from({length: SAMPLES}, (_, s) => {
+    const d = randKit(770000 + s);
+    return { d, m: mean(d.map(x => x.noise)) };
+  }).sort((a, b) => a.m - b.m);
+  const builds = [0.10, 0.35, 0.65, 0.90].map(q => {
+    const c = Math.min(SAMPLES - 1, Math.floor(q * SAMPLES));
+    const lo = Math.max(0, Math.min(SAMPLES - BAND, c - BAND / 2));
+    const band = pool.slice(lo, lo + BAND);
+    return [f(mean(band.map(x => x.m)), 2), mean(band.map(x => wOf(x.d))), band.length];
   });
-  C.info('평균 소음별 덱 성공률', builds.map(([n,w])=>`소음${n} ${pct(w)}`).join(' '));
+  C.info('평균 소음별 혼합 덱 성공률',
+    builds.map(([n,w,k])=>`소음${n} ${pct(w)}(덱${k})`).join(' '));
   const ws = builds.map(b=>b[1]);
   C.check('소음 성향이 다른 빌드가 모두 성립 (격차 <25%p)',
     Math.max(...ws)-Math.min(...ws) < 0.25, pct(Math.max(...ws)-Math.min(...ws)));

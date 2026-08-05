@@ -211,7 +211,7 @@ const BASE = std(8000, 'assign');
       //    당연히 손해 0 이다. 엔진은 유효성 필터로 그런 선택을 하지 않으므로,
       //    측정도 **그 대응이 실제로 선택될 수 있는 상태**에서 해야 한다.
       const prime = st => m==='권한 초기화'
-        ? { ...st, priv: 3, hand: [...st.hand, {...byName('권한상승')}] } : st;
+        ? { ...st, priv: 3, hand: [...st.hand, {...byName('privesc')}] } : st;
       const a0 = { ...prime(newRun(randKit(seed), r1, {layers})), pending:m };
       const b0 = prime(newRun(randKit(seed), r2, {layers}));
       withC += score(playOut(a0, make('assign'), r1, defaultGear));

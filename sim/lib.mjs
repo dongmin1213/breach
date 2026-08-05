@@ -16,6 +16,12 @@ export function rng(seed) {
 
 export const SEED = { TRAIN: 1_000_000, TEST: 7_000_000 };
 
+// 감사 검사 총 개수. **다중비교 보정에 실제로 쓰이는 숫자**라 주석이 아니라 상수다.
+// 예전에는 auditB 가 전작의 400 을 그대로 곱하고 있어서 우연실패 기대치가 1.8배
+// 부풀어 있었다 — 낡은 문서가 낡은 통계가 된 사례다.
+// runAll.mjs 가 실행할 때마다 실측과 대조해 어긋나면 실패시킨다.
+export const AUDIT_COUNT = 225;
+
 // ── 한 판
 export function run(toolkit, seed, botName = 'assign', opts = {}) {
   const r = rng(seed);
@@ -140,7 +146,8 @@ export function std(n = 8000, botName = 'assign', base = SEED.TEST, opts = {}) {
 //    콘텐츠 하나의 가치를 "그것만 8장인 덱"으로 재면 저항 포화·스탯 편중 때문에
 //    난이도에 따라 천장이나 바닥에 붙어 버린다. 이전 프로젝트에서 세 번 반복한 오류다.
 //    대신 현실적 대조 툴킷 7장 + 시험 툴 1장으로, 그 툴의 실사용률과 성공률 기여를 잰다.
-export const CONTROL7 = ['사전공격','패킷위장','배지복제','포트스캔','사이드채널','중간자','권한상승'];
+// ⚠️ id 로 적는다 — 표시 이름(assets/l10n)을 쓰면 이름 수정이 곧 측정 오염이 된다 (§1.3).
+export const CONTROL7 = ['preattack','packet_mask','badge_clone','port_scan','side_channel','mitm','privesc'];
 
 export function marginal(testTool, n = 3000, botName = 'assign', base = SEED.TEST) {
   const ctrl = CONTROL7.map(x => byName(x));
@@ -163,7 +170,7 @@ export function controlBaseline(n = 3000, botName='assign', base = SEED.TEST) {
   let ok=0;
   for (let t=0;t<n;t++) {
     const seed = base+t, r = rng(seed);
-    const k = [...ctrl.map(c=>({...c})), {...byName('패킷위장')}];
+    const k = [...ctrl.map(c=>({...c})), {...byName('packet_mask')}];
     if (playOut(newRun(k,r,{}), make(botName,r), r, defaultGear).status==='success') ok++;
   }
   return ok/n;

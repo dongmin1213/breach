@@ -24,7 +24,7 @@ breach/
     golden_test · prng_test · prng_web_test · determinism_test · l10n_test · app_test
   sim/                    JS 밸런스 검증 하니스
     core/                   JS 엔진 — **검증의 기준 구현**
-    audits/                 감사 A~J (221개 검사)
+    audits/                 감사 A~J (225개 검사)
     analysis/               스윕 · 시너지 · 표적 교차 검증 도구
     lib.mjs runAll.mjs golden.mjs
   tools/verify.sh         전 구간 검증
@@ -35,7 +35,7 @@ breach/
 
 ## 왜 JS 엔진과 Dart 엔진이 둘 다 있는가
 
-**JS 엔진(`sim/core/`)이 검증의 기준이다.** 감사 221개가 그 위에서 돈다.
+**JS 엔진(`sim/core/`)이 검증의 기준이다.** 감사 225개가 그 위에서 돈다.
 Dart 엔진은 그것을 재현하는 구현이고, `test/golden_test.dart` 가 일치를 강제한다.
 
 JS 를 버리면 감사 하니스를 통째로 잃는다. Dart 만으로 감사를 다시 쓰는 것은
@@ -106,7 +106,7 @@ int imul32(int a, int b)   // JS Math.imul 의 16비트 분할 구현
 
 Dart 네이티브 int 는 64비트, **웹은 double** 이라 그냥 `a * b` 를 쓰면
 웹 빌드에서만 조용히 다른 난수가 나온다. 한 비트만 어긋나면
-데일리·서버 검증·감사 221개가 전부 무의미해진다.
+데일리·서버 검증·감사 225개가 전부 무의미해진다.
 
 수정했다면 반드시:
 ```

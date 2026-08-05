@@ -166,7 +166,7 @@ E.info('대조 툴킷 기준 성공률', pct(CTRL));
   let byp = 0, plays = 0;
   for (let i=0;i<4000;i++) {
     const seed=SEED.TEST+i, r=rng(seed);
-    const k = [...L.CONTROL7.map(x=>({...byName(x)})), {...byName('루트킷'), name:'시험툴'}];
+    const k = [...L.CONTROL7.map(x=>({...byName(x)})), {...byName('rootkit'), name:'시험툴'}];
     const s = playOut(newRun(k, r, {}), make('assign',r), r, defaultGear);
     for (const l of layerLog(s)) if (l.tool==='시험툴') { plays++; if (l.short === 0) byp++; }
   }
@@ -220,7 +220,7 @@ E.info('대조 툴킷 기준 성공률', pct(CTRL));
     `최저 ${pct(rates[0])} p10 ${pct(rates[30])} 중앙 ${pct(rates[150])} p90 ${pct(rates[270])} 최고 ${pct(rates[299])}`);
   E.check('승산 없는 툴킷이 없음 (최저 >20%)', rates[0] > 0.20, pct(rates[0]));
   E.check('자동 승리 덱이 없음 (최고 <90%)', rates[299] < 0.90, pct(rates[299]));
-  // §1.5: 400개 검사에서 경계 ±2pp 이탈은 노이즈로 취급한다.
+  // §1.5: 225개 검사에서 경계 ±2pp 이탈은 노이즈로 취급한다.
   E.check('중앙 80% 구간 폭 <37%p', rates[270]-rates[30] < 0.37, pct(rates[270]-rates[30]));
   E.info('툴킷 성공률 σ', pct(sd(rates)));
   // 툴킷 강도의 예측 가능성 — 특정 툴 보유가 성공률을 얼마나 설명하는가

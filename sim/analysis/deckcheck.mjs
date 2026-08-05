@@ -20,7 +20,7 @@ const trial = (pool, n = 6000, tag = '') => {
 };
 
 const P = n => byName(n);
-const GOOD8 = ['브루트포스','테일게이팅','사전공격','중간자','권한상승','포트스캔','로그와이프','사이드채널'].map(P);
+const GOOD8 = ['brute_force','tailgate','preattack','mitm','privesc','port_scan','log_wipe','side_channel'].map(P);
 
 console.log('\n══ ① 희석 비용 — 풀에 카드를 더 넣으면? ══');
 console.log('   (손패는 계층+1 로 고정. 풀이 커질수록 원하는 카드를 못 뽑는다)');
@@ -37,7 +37,7 @@ console.log('   (손패는 계층+1 로 고정. 풀이 커질수록 원하는 �
       ` 성공 ${pct(t.win)}  기대점수 ${f(t.exp,0)}  Δ${f((t.win-base.win)*100,1)}pp`);
   }
   // 대조: 좋은 카드를 채워 넣으면?
-  const goodAdd = ['제로데이','지속백도어','패킷위장','배지복제'].map(P);
+  const goodAdd = ['zero_day','persist_backdoor','packet_mask','badge_clone'].map(P);
   const t2 = trial([...GOOD8, ...goodAdd], 6000);
   console.log(`   풀 12 (+정상툴 4)`.padEnd(25) +
     ` 성공 ${pct(t2.win)}  기대점수 ${f(t2.exp,0)}  Δ${f((t2.win-base.win)*100,1)}pp`);

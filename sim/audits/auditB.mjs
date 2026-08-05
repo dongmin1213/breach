@@ -3,7 +3,7 @@
 //
 //  이전 프로젝트 최대 손실은 엔진 버그가 아니라 **측정 오류 6건**이었다.
 //  "구조적으로 불가능"이라던 결론 3개가 전부 비현실적 덱으로 잰 허상이었다.
-//  이 그룹은 나머지 310개 관점이 딛고 설 바닥을 검사한다.
+//  이 그룹은 나머지 전 그룹이 딛고 설 바닥을 검사한다.
 // ══════════════════════════════════════════════════════════════
 import * as L from '../lib.mjs';
 const { Audit, rng, kit, run, batch, versusRaw, score, CONFIG, SEED,
@@ -19,7 +19,27 @@ function randKit(seed) {
   return pool.slice(0,8).map(t => ({...t}));
 }
 
-// ── 48~52 시드 규약 ───────────────────────────────────────────
+// ── 측정 기반 무결성 — 이 검사가 깨지면 아래 전부가 무의미하다 ──
+{
+  // 프리셋·대조덱이 실재하는 카드를 가리키는가.
+  // 예전에는 byName 이 undefined 를 돌려주고 호출부가 `{...undefined}` = `{}` 를
+  // 덱에 넣어, 카드 이름 하나만 바뀌어도 성공률이 47.3% → 62.0% 로 오르면서
+  // 감사 전체가 통과했다 (trace = NaN, `NaN >= 100` 이 false).
+  let bad = [];
+  for (const [name, ids] of Object.entries(L.PRESETS))
+    for (const id of ids) { try { byName(id); } catch { bad.push(`${name}/${id}`); } }
+  for (const id of L.CONTROL7) { try { byName(id); } catch { bad.push(`CONTROL7/${id}`); } }
+  B.check('프리셋·대조덱의 카드가 전부 실재', bad.length === 0,
+    bad.length ? bad.join(' ') : `프리셋 ${Object.keys(L.PRESETS).length}종 + 대조덱 7장`);
+
+  // 가드 자체가 살아 있는가 (throw 를 되돌리면 위 검사가 공허해진다)
+  let threw = false;
+  try { byName('__없는카드__'); } catch { threw = true; }
+  B.check('없는 카드를 지목하면 즉시 실패 (조용한 오염 불가)', threw,
+    threw ? 'byName 이 throw' : 'byName 이 undefined 를 반환 — 오염 경로가 열려 있다');
+}
+
+// ── 시드 규약 ─────────────────────────────────────────────────
 {
   const trainRange = [SEED.TRAIN, SEED.TRAIN + 100_000];
   const testRange  = [SEED.TEST,  SEED.TEST  + 100_000];
@@ -138,10 +158,12 @@ function randKit(seed) {
   B.info('흔적 분포', `중앙값 ${f(srt[2000],1)} p10 ${f(srt[400],1)} p90 ${f(srt[3600],1)}`);
 }
 {
-  // 다중 비교: 400개 검사 중 우연 실패 기대치
-  const alpha = 0.05;
-  B.info('400개 검사의 우연 실패 기대치', `${(400*alpha).toFixed(0)}건 — 경계 ±2pp 이탈은 노이즈`);
-  B.check('본페로니 보정 임계치가 명시됨', alpha/400 < 0.0002, `α'=${(alpha/400).toExponential(1)}`);
+  // 다중 비교: 전체 검사 중 우연 실패 기대치.
+  // ⚠️ 검사 수를 손으로 적으면 낡는다 — lib.mjs 의 AUDIT_COUNT 를 쓰고,
+  //    runAll.mjs 가 그 값을 실측과 대조한다.
+  const alpha = 0.05, N = L.AUDIT_COUNT;
+  B.info(`${N}개 검사의 우연 실패 기대치`, `${(N*alpha).toFixed(0)}건 — 경계 ±2pp 이탈은 노이즈`);
+  B.check('본페로니 보정 임계치가 명시됨', alpha/N < 0.0005, `α'=${(alpha/N).toExponential(1)}`);
 }
 
 // ── 65~72 측정도구 반증 (§1.4) ────────────────────────────────

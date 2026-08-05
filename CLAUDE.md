@@ -98,7 +98,7 @@ Dart 웹은 int 가 double 이라 2^53 넘는 중간값이 조용히 뭉개진�
 ```bash
 # 1. assets/balance.json 수정
 node sim/runAll.mjs                  # 감사
-node sim/analysis/metrics.mjs        # 지표 9개
+node sim/analysis/metrics.mjs        # 지표 일괄 (파레토 검사)
 # 파레토 검사: 개선 ≥1 AND 악화 0 이어야 적용
 node sim/golden.mjs                  # 골든 재생성
 dart test                            # Dart 일치 확인
@@ -182,7 +182,7 @@ JS 를 지우면 감사 하니스를 통째로 잃는다.
 
 ```bash
 tools/verify.sh                    # 감사 · 골든 · 정적분석 · Dart · 웹
-node sim/analysis/metrics.mjs      # 지표 9개
+node sim/analysis/metrics.mjs      # 지표 일괄 (파레토 검사)
 ```
 
 다음 우선순위는 [docs/08-roadmap.md](docs/08-roadmap.md).

@@ -217,7 +217,7 @@ const src = p => readFileSync(new URL(p, import.meta.url), 'utf8');
 {
   // 적대적 입력
   const cases = [];
-  const t = () => ({...byName('사전공격')});
+  const t = () => ({...byName('preattack')});
   try { newRun([], rng(1), {}); cases.push(['빈 툴킷', true]); }
   catch(e){ cases.push(['빈 툴킷', false]); }
   try { const s = newRun([t()], rng(1), { layerCount:5, handSize:1 });

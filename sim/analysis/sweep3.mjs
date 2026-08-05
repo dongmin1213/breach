@@ -23,7 +23,7 @@ function calibrate(target = 0.55) {
 // ⚠️ 동일 툴 8장 덱은 저항이 상한까지 쌓여 어느 소음이든 못 뚫는다 (측정 바닥).
 //    현실적 툴킷 7장 + 시험 툴 1장으로 **한계 기여**를 잰다.
 //    소음 가격이 공정하면 시험 툴의 "손에 들어왔을 때 실제 사용률"이 소음과 무관해야 한다.
-const CONTROL = ['사전공격','패킷위장','배지복제','포트스캔','사이드채널','중간자','권한상승'];
+const CONTROL = ['preattack','packet_mask','badge_clone','port_scan','side_channel','mitm','privesc'];
 function noiseCurve(n = 2500) {
   return [0,1,2,3,4].map(nz => {
     const test = makeTool('시험툴','정예','우회',[45,45,45],nz);
