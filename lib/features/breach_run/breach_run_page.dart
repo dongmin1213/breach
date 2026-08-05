@@ -27,8 +27,12 @@ class BreachRunPage extends StatelessWidget {
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: run,
     builder: (context, _) {
+      // ⚠️ 런이 끝나면 layerIdx 가 계층 수와 같아진다. 결과 화면 전환은 **다음 프레임**이라
+      //    그대로 아래를 그리면 run.layer 가 범위를 벗어나 RangeError 를 던진다.
+      //    (실제로 매 판 끝마다 예외가 하나씩 났다.)
       if (!run.running) {
         WidgetsBinding.instance.addPostFrameCallback((_) => onFinished());
+        return const Scaffold(backgroundColor: T.bg, body: SizedBox.shrink());
       }
       final r = app.balance.rules;
       return Scaffold(
@@ -136,6 +140,10 @@ class BreachRunPage extends StatelessWidget {
     return s.f('gearHint.$g', {'n': v});
   }
 
+  /// 부호를 붙여 표시한다. 0 은 부호 없이 — `+0.0`·`+-0.0` 둘 다 읽기 나쁘다.
+  static String _signed(double v) => v > 0.05 ? '+${v.toStringAsFixed(1)}'
+      : v < -0.05 ? '−${(-v).toStringAsFixed(1)}' : '0.0';
+
   /// 한 장을 내는 결정은 두 가지로 갈린다 — **넘기는가**, **얼마를 내는가**.
   /// 그래서 판정과 탐지 증가분을 제일 크게 놓고, 스탯·수치는 근거로 아래에 깐다.
   /// (예전에는 카드 이름·판정·스탯·수치가 전부 같은 무게라 눈이 갈 곳이 없었다.)
@@ -160,8 +168,10 @@ class BreachRunPage extends StatelessWidget {
           Expanded(child: Text(verdict, style: TextStyle(
             color: side, fontSize: 17, fontWeight: FontWeight.w700))),
           Text('${s['run.traceAdd']} ', style: const TextStyle(fontSize: 11, color: T.dim)),
-          Text('+${p.dTrace.toStringAsFixed(1)}', style: TextStyle(
-            fontFamily: T.mono, fontSize: 16, fontWeight: FontWeight.w700, color: traceCol)),
+          // 소거 카드는 증가분이 0 이하가 될 수 있다. `+` 를 무조건 붙이면 `+-0.0` 이 된다.
+          Text(_signed(p.dTrace), style: TextStyle(
+            fontFamily: T.mono, fontSize: 16, fontWeight: FontWeight.w700,
+            color: p.dTrace <= 0 ? T.acc : traceCol)),
         ]),
         const SizedBox(height: 4),
         // ② 무엇을 내는가

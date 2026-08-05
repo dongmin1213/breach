@@ -6,21 +6,21 @@ library;
 
 import 'package:flutter/material.dart';
 import '../../app/app_state.dart';
+import '../../shared/model/run_outcome.dart';
 import '../../shared/ui/tokens.dart';
 import '../../shared/ui/widgets.dart';
-import '../breach_run/run_controller.dart';
 
 class ResultPage extends StatelessWidget {
   final AppState app;
-  final RunController run;
+  final RunOutcome outcome;
   final VoidCallback onAgain, onRetry, onToDeck;
-  const ResultPage({super.key, required this.app, required this.run,
+  const ResultPage({super.key, required this.app, required this.outcome,
     required this.onAgain, required this.onRetry, required this.onToDeck});
 
   @override
   Widget build(BuildContext context) {
     final s = app.s;
-    final won = run.state.status == 'success';
+    final won = outcome.won;
     final col = won ? T.acc : T.bad;
     final r = app.balance.rules;
     return Scaffold(body: SafeArea(child: Frame(child: Center(child: ListView(
@@ -29,14 +29,14 @@ class ResultPage extends StatelessWidget {
           style: Theme.of(context).textTheme.displaySmall?.copyWith(color: col)),
         const SizedBox(height: 2),
         Text(won ? s['result.successMsg']
-                 : s.f('result.failedMsg', {'n': run.state.layerIdx}),
+                 : s.f('result.failedMsg', {'n': outcome.layersReached}),
           style: Theme.of(context).textTheme.bodySmall),
         const SizedBox(height: T.s4),
         _row(context, s['result.finalTrace'],
-          '${run.state.trace.toStringAsFixed(1)} / ${r.traceMax}'),
-        _row(context, s['result.toolsLeft'], '${run.state.hand.length}'),
-        _row(context, s['result.slackLeft'], run.state.slack.toStringAsFixed(1)),
-        _row(context, s['result.score'], '${run.score}', color: col, big: true),
+          '${outcome.trace.toStringAsFixed(1)} / ${r.traceMax}'),
+        _row(context, s['result.toolsLeft'], '${outcome.toolsLeft}'),
+        _row(context, s['result.slackLeft'], outcome.slack.toStringAsFixed(1)),
+        _row(context, s['result.score'], '${outcome.score}', color: col, big: true),
         const SizedBox(height: T.s2),
         Text(s['result.scoreHint'], style: Theme.of(context).textTheme.labelSmall),
         const SizedBox(height: T.s4),

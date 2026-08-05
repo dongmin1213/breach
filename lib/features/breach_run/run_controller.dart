@@ -8,6 +8,7 @@ import '../../shared/engine/bots.dart';
 import '../../shared/engine/engine.dart';
 import '../../shared/engine/prng.dart';
 import '../../shared/engine/targets.dart';
+import '../../shared/model/run_outcome.dart';
 
 /// 카드 한 장을 지금 내면 무슨 일이 일어나는가.
 /// 전투가 결정론적이므로 숨길 이유가 없다 — 도박이 아니라 퍼즐이 되게 한다.
@@ -89,4 +90,14 @@ class RunController extends ChangeNotifier {
   void useGear(String id) { state = engine.useGear(state, id); notifyListeners(); }
 
   int get score => engine.score(state);
+
+  /// 결과 화면으로 넘길 순수 값. 컨트롤러·엔진 타입이 슬라이스 밖으로 새지 않는다.
+  RunOutcome get outcome => RunOutcome(
+    won: state.status == 'success',
+    layersReached: state.layerIdx,
+    trace: state.trace,
+    slack: state.slack,
+    toolsLeft: state.hand.length,
+    score: score,
+  );
 }

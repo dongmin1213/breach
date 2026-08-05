@@ -47,7 +47,8 @@ class _ShellState extends State<Shell> {
   Future<void> _finish() async {
     if (_recorded || run == null) return;
     _recorded = true;
-    await app.recordRun(won: run!.state.status == 'success', score: run!.score);
+    final o = run!.outcome;
+    await app.recordRun(won: o.won, score: o.score);
     if (mounted) _go(Screen.result);
   }
 
@@ -63,7 +64,7 @@ class _ShellState extends State<Shell> {
         onStart: _startRun, onBack: () => _go(Screen.targets)),
     Screen.run => BreachRunPage(app: app, run: run!,
         onFinished: _finish, onQuit: () => _go(Screen.targets)),
-    Screen.result => ResultPage(app: app, run: run!,
+    Screen.result => ResultPage(app: app, outcome: run!.outcome,
         onAgain: _startRun,
         onRetry: () { _recorded = false; run!.start(withSeed: run!.seed); _go(Screen.run); },
         onToDeck: () => _go(Screen.deck)),
